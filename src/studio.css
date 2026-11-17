@@ -1,0 +1,100 @@
+/* סטודיו הכיתה */
+.studio-btn{border:0;cursor:pointer;font-family:inherit;display:inline-flex;gap:6px;align-items:center;transition:transform .15s}
+.studio-btn:hover{transform:translateY(-1px)}
+.studio{margin:26px 0 6px;padding:20px;border-radius:20px;background:linear-gradient(160deg,#7b3df526,#d7ff530d 70%);border:1px solid #b79bff55;max-width:760px}
+.studio-head h3{font-size:22px;color:#fff;margin:10px 0 6px;font-weight:800}
+.studio-head p{color:#d3dbe7;font-size:15px;line-height:1.7}
+.studio-tabs{display:flex;gap:8px;margin:16px 0 14px;flex-wrap:wrap}
+.studio-tabs button,.pr-tabs button{background:#ffffff0d;border:1px solid #ffffff22;color:#e6ecf5;border-radius:999px;padding:9px 16px;font-weight:700;font-size:14.5px;min-height:42px}
+.studio-tabs button.on,.pr-tabs button.on{background:var(--lime);color:var(--ink);border-color:var(--lime)}
+.studio-body{background:#0b1423b3;border:1px solid #ffffff14;border-radius:16px;padding:16px}
+.studio-link{color:var(--lime);margin-top:10px;font-size:14px;font-weight:700}
+.privacy-note{margin:12px 0 0;padding:10px 13px;border-radius:12px;background:#ffd16614;border:1px solid #ffd16655;color:#ffe7a8;font-size:13.5px;line-height:1.65}
+.privacy-note b{color:#ffd166}
+.studio-page .privacy-note{background:#fff6dc;border-color:#f1c75b;color:#5b4410}.studio-page .privacy-note b{color:#7a5300}
+/* טופס חקר */
+.rc-form{display:grid;gap:12px}
+.rc-form label{display:grid;gap:5px;position:relative}
+.rc-form label>span,.rec-names>span{font-size:13.5px;color:#c9d3e2;font-weight:600}
+.rc-form input,.rc-form textarea,.rec-names input{width:100%;font:inherit;font-size:16px;color:#fff;background:#ffffff0d;border:1.5px solid #ffffff26;border-radius:12px;padding:11px 13px;outline:none;resize:vertical}
+.rc-form input:focus,.rc-form textarea:focus,.rec-names input:focus{border-color:var(--lav);background:#ffffff14}
+.rc-form ::placeholder,.rec-names ::placeholder{color:#8391a9}
+.rc-form .count{position:absolute;left:10px;bottom:8px;font-size:11px;color:#8391a9}
+.rc-img{display:flex;gap:10px;align-items:center;flex-wrap:wrap;color:#c9d3e2}
+.rc-img img{width:64px;height:64px;object-fit:cover;border-radius:10px;border:1px solid #ffffff30}
+.file-btn{position:relative;display:inline-flex;align-items:center;gap:6px;cursor:pointer;background:#ffffff10;border:1.5px dashed #b79bff88;color:#e6ecf5;border-radius:12px;padding:9px 14px;font-weight:700;font-size:14px;min-height:42px}
+.file-btn input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%}
+.file-btn:focus-within{outline:3px solid var(--lav);outline-offset:2px}
+.file-btn.alt{margin-top:12px;font-size:13px;font-weight:600;border-style:dashed;border-color:#ffffff33}
+.hint{font-size:12.5px;color:#8fa0b8;line-height:1.6}
+.form-err{color:#ffb4b4;background:#ff6b6b1a;border:1px solid #ff6b6b55;padding:8px 12px;border-radius:10px;font-size:14px;line-height:1.6;margin-top:8px}
+.cta.small{min-height:46px;padding:11px 16px;font-size:15px;max-width:340px}
+.cta:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+/* טלפרומפטר + מקליט */
+.recorder{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:16px;align-items:start}
+.prompter{display:grid;gap:8px}
+.pr-tabs{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.pr-tabs button{font-size:13px;padding:7px 12px;min-height:36px}
+.pr-size{margin-inline-start:auto;display:flex;gap:4px}
+.pr-size button{padding:5px 10px;border-radius:10px}
+.pr-label{font-size:12.5px;color:#ffd166;background:#ffd16614;border-radius:8px;padding:5px 9px}
+.pr-text{max-height:250px;overflow-y:auto;background:#05090f;border-radius:14px;padding:18px 18px 60px;border:1px solid #ffffff1a;line-height:1.75;color:#fff;font-weight:500;scroll-behavior:auto;position:relative;-webkit-overflow-scrolling:touch}
+.pr-text.running{border-color:#ff6b6b88;box-shadow:0 0 0 3px #ff6b6b22}
+.pr-text p{margin:0}
+.pr-meta{font-size:12px;color:#8fa0b8}
+.rec-panel{display:grid;gap:12px}
+.rec-names{display:grid;gap:5px}
+.rec-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.mic{display:inline-flex;align-items:center;gap:10px;border:0;border-radius:999px;background:#ff5a6e;color:#fff;font-weight:800;font-size:16px;padding:10px 20px 10px 14px;min-height:54px;box-shadow:0 8px 24px #ff5a6e44;transition:transform .15s}
+.mic:hover{transform:translateY(-2px)}.mic:disabled{opacity:.6}
+.mic-ico{display:grid;place-items:center;width:36px;height:36px;border-radius:50%;background:#ffffff2a;font-size:17px}
+.mic.on{background:#fff;color:#c81e3a;animation:recPulse 1.4s infinite}
+@keyframes recPulse{0%,100%{box-shadow:0 0 0 0 #ff5a6e88}50%{box-shadow:0 0 0 10px #ff5a6e00}}
+.rec-time{font-variant-numeric:tabular-nums;color:#c9d3e2;font-size:14px;display:flex;align-items:center;gap:7px}
+.rec-time.live{color:#fff;font-size:20px;font-weight:800}
+.rec-time.live i{width:10px;height:10px;border-radius:50%;background:#ff5a6e;animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.2}}
+.rec-done{display:grid;gap:8px;background:#ffffff08;border:1px solid #ffffff1a;border-radius:14px;padding:12px}
+.rec-done audio,.student-voice audio{width:100%;height:42px}
+.rec-actions{display:flex;gap:14px;align-items:center;flex-wrap:wrap;color:#c9d3e2}
+.ghost.sm{min-height:40px;padding:8px 14px;font-size:14px}
+.rec-tips{margin:0;padding-inline-start:18px;color:#8fa0b8;font-size:12.5px;line-height:1.7}
+.student-voice{background:#ffffff0a;border:1px solid #d7ff5340;border-radius:16px;padding:12px 14px}
+.sv-head{display:flex;gap:8px;align-items:center;color:#fff;margin-bottom:8px;flex-wrap:wrap}
+.sv-head small{color:var(--lime)}
+.student-video{margin-top:4px}
+.class-tag{background:var(--lime)!important;color:var(--ink)!important}
+/* כרטיסים בצד */
+.our-research .rc-title{font-size:17px;font-weight:800;color:var(--ink);margin:2px 4px 10px}
+.our-research .rc-title span{color:var(--violet)}
+.our-research .research{border-bottom:1px solid #e5e0f5;padding-bottom:10px;margin-bottom:10px}
+.rc-empty{display:flex;gap:10px;align-items:center;padding:10px 12px;border:2px dashed #c4b5fd;border-radius:14px}
+.rc-empty p{font-size:13.5px;color:var(--violet2);font-weight:600;line-height:1.55}
+.rc-list{list-style:none;margin:0;padding:0;display:grid;gap:10px;max-height:560px;overflow:auto}
+.rc-card{background:#fff;border:1px solid #e7e1f7;border-radius:14px;padding:12px;box-shadow:0 4px 14px #19364612}
+.rc-card.local{border-style:dashed;border-color:#b79bff}
+.rc-card img{width:100%;max-height:170px;object-fit:cover;border-radius:10px;margin-bottom:8px;display:block}
+.rc-who{display:flex;gap:8px;align-items:center;color:var(--violet2);font-size:14px}
+.rc-who .avatar,.rc-empty .avatar{flex:none;width:30px;height:30px;border-radius:50%;background:var(--violet);color:#fff;display:grid;place-items:center;font-weight:800;font-size:14px}
+.rc-fact{font-size:14.5px;line-height:1.7;margin:8px 0 6px;color:#1c2738}
+.rc-src{font-size:12px;color:#6b7689;word-break:break-word}
+.rc-src a{color:var(--violet2)}
+.rc-local{display:flex;justify-content:space-between;gap:8px;margin-top:8px;font-size:11.5px;color:#7a5300;background:#fff6dc;border-radius:8px;padding:4px 8px}
+/* קרדיטים */
+.credits{margin:14px auto 0;text-align:center}
+.credits b{display:block;font-size:12px;letter-spacing:.5px;color:var(--violet2);margin-bottom:4px}
+.credits p{font-size:16px;font-weight:700;color:var(--ink);line-height:1.6}
+.credits.light{text-align:start;background:#f4effe;border-radius:14px;padding:12px 16px;margin-top:14px}
+.cert-credits{max-width:560px;padding:10px 14px;border-top:1px dashed #b79bff;border-bottom:1px dashed #b79bff}
+/* עמוד הסטודיו */
+.studio-view{padding:28px 32px 48px}
+.how-steps{padding-inline-start:20px;line-height:1.8;color:#2c3a4e;margin:6px 0 4px}
+.st-table{width:100%;border-collapse:collapse;margin:8px 0 16px;font-size:15px}
+.st-table th,.st-table td{text-align:start;padding:9px 10px;border-bottom:1px solid #e6e2d6}
+.st-table th{font-size:13px;color:#5a6676}
+.studio-io{display:flex;gap:12px;flex-wrap:wrap;align-items:stretch}
+.studio-io .cta{width:auto;flex:1 1 320px}
+.file-btn.big{min-height:52px;border-radius:14px;justify-content:center;flex:1 1 220px;border-style:solid;background:transparent;color:var(--ink);font-size:15px}
+@media(max-width:860px){.recorder{grid-template-columns:1fr}}
+@media(max-width:700px){.studio{padding:14px;margin-inline:-4px}.studio-body{padding:12px}.studio-head h3{font-size:19px}.studio-view{padding:16px 12px 32px}.studio-btn{display:inline-flex!important;width:36px;height:36px;padding:0;justify-content:center;font-size:16px}.studio-btn .sb-txt{display:none}.pr-text{max-height:210px}}
+@media print{.studio,.studio-btn{display:none!important}}
