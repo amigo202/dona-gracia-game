@@ -1,51 +1,134 @@
-/* פתיחה: אותם צבעים, גופן ורכיבי מפה של הלומדה */
-.dgi{position:fixed;inset:0;z-index:200;background:var(--sea);color:var(--ink);display:flex;align-items:center;justify-content:center;padding:64px 32px 40px;overflow:hidden;animation:dgiIn .6s ease-out both;font-family:Heebo,Arial,sans-serif}
-.dgi.out{animation:dgiOut .38s ease-in forwards}
-@keyframes dgiIn{from{opacity:0}to{opacity:1}}
-@keyframes dgiOut{to{opacity:0;transform:scale(1.015)}}
-.dgi-skip{position:absolute;top:18px;left:18px;z-index:5;background:#fffefaee;border:1px solid #fff;color:var(--ink);border-radius:999px;padding:8px 18px;font-size:14px;font-weight:700;box-shadow:0 5px 20px #182a3714;min-height:40px}
-.dgi-skip:hover{background:#fff}
-.dgi.dim .dgi-skip{background:#ffffff14;border-color:#ffffff30;color:#fff;box-shadow:none}
-.dgi-stage{width:min(960px,100%,calc((100vh - 250px) * 16 / 9));display:flex;flex-direction:column;align-items:center;gap:22px;transition:opacity .9s,filter .9s,transform .9s}
-.dgi-top{animation:dgiUp .7s .35s cubic-bezier(.2,.8,.2,1) both}
-.dgi-top .map-title{text-align:center;padding:12px 22px}
-.dgi-top .map-title strong{font-size:22px;font-weight:800;letter-spacing:-.3px}
-@keyframes dgiUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-.dgi-map{width:100%;animation:dgiMap 1.2s cubic-bezier(.2,.8,.2,1) both}
-@keyframes dgiMap{from{opacity:0;transform:scale(.985)}to{opacity:1;transform:none}}
-.dgi .map-pin{pointer-events:none;cursor:default}
-.dgi-pin.dgi-now b{background:var(--lime);color:var(--ink);box-shadow:0 0 0 9px #d7ff5340;animation:pulse 1.8s ease-in-out infinite}
-.dgi-base{transition:opacity .4s}
-.dgi-draw{stroke-dasharray:100;stroke-dashoffset:100;animation:draw .85s .1s cubic-bezier(.6,0,.2,1) forwards}
-.dgi-mask{fill:none;stroke:#fff;stroke-width:8;stroke-linecap:round}
-.dgi-mask.draw{stroke-dasharray:100;stroke-dashoffset:100;animation:draw .85s .1s cubic-bezier(.6,0,.2,1) forwards}
-.dgi-dot{animation:dgiIn .3s both}
-.dgi-cap{min-height:56px;display:flex;align-items:center;justify-content:center}
-.dgi-line{display:flex;align-items:center;gap:12px;background:#fffefaee;border:1px solid #fff;border-radius:16px;padding:11px 20px 11px 14px;box-shadow:0 5px 20px #182a3714;font-size:22px;font-weight:800;letter-spacing:-.3px;animation:dgiUp .45s cubic-bezier(.2,.8,.2,1) both}
-.dgi-line b{width:32px;height:32px;border-radius:50%;background:var(--violet);color:#fff;display:grid;place-items:center;font-size:15px;flex:none}
-.dgi-veil{position:absolute;inset:0;background:var(--ink);opacity:0;pointer-events:none;transition:opacity 1s ease}
-.dgi.dim .dgi-veil{opacity:.72}
-.dgi.dim .dgi-stage{filter:saturate(.6) blur(1.5px);transform:scale(.97)}
-.dgi-cap,.dgi-top .map-title{transition:opacity .6s}
-.dgi.dim .dgi-cap,.dgi.dim .dgi-top .map-title{opacity:0}
-.dgi-card{position:absolute;z-index:3;width:min(520px,calc(100% - 32px));padding:34px 36px 30px;text-align:center;animation:dgiCard .9s cubic-bezier(.2,.8,.2,1) both}
-@keyframes dgiCard{from{opacity:0;transform:translateY(18px) scale(.98)}to{opacity:1;transform:none}}
-.dgi-card h1{font-size:46px;line-height:1.14;font-weight:900;letter-spacing:-1.4px;color:#fff;margin:0}
-.dgi-sub{color:var(--lime);font-size:21px;font-weight:700;margin:16px 0 0;animation:dgiUp .7s .9s cubic-bezier(.2,.8,.2,1) both}
-.dgi-go{max-height:0;opacity:0;overflow:hidden;transition:max-height .5s,opacity .5s,margin .5s;margin-top:0;padding:0 2px}
-.dgi-go.on{overflow:visible;max-height:90px;opacity:1;margin-top:24px;padding-bottom:6px}
-.dgi-go .cta{max-width:340px;margin:0 auto}
-.dgi.still *{animation:none!important;transition:none!important}
-@media(max-width:700px){
- .dgi{padding:72px 10px 32px}
- .dgi-stage{width:100%;gap:20px}
- .dgi-skip{top:14px;left:14px;font-size:13px;padding:7px 15px}
- .dgi-top .map-title strong{font-size:19px}
- .dgi-line{font-size:18px;padding:10px 16px 10px 12px;gap:10px}
- .dgi-line b{width:28px;height:28px;font-size:13px}
- .dgi-card{padding:28px 22px 24px}
- .dgi-card h1{font-size:34px;letter-spacing:-1px}
- .dgi-sub{font-size:18px;margin-top:12px}
- .dgi-go .cta{max-width:none}
+/* פתיחה קולנועית: שחור, זהב חם, Heebo. בלי גופנים חיצוניים. */
+.dgp{--gold:#e2c27e;--cream:#f7eedb;--bar:clamp(0px,calc((100vh - 100vw / 2.39) / 2),11vh);position:fixed;inset:0;z-index:200;background:#000;color:var(--cream);font-family:Heebo,Arial,sans-serif;overflow:hidden;overflow:clip;-webkit-font-smoothing:antialiased;transition:opacity .9s ease}
+.dgp *{box-sizing:border-box}
+.dgp.out{opacity:0;pointer-events:none}
+.dgp button{font:inherit;-webkit-tap-highlight-color:transparent}
+
+/* שוטים */
+.dgp-shot{position:absolute;inset:0;opacity:0;transition:opacity 1.6s cubic-bezier(.4,0,.2,1);overflow:hidden}
+.dgp-shot.on{opacity:1;transition-duration:2s}
+.dgp-shot.city{transition-duration:1.2s}
+.dgp-shot.city.on{transition-duration:1.2s}
+.dgp-img,.dgp-vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:47% 42%;will-change:transform}
+.dgp-vid{object-position:50% 50%;filter:saturate(.9) contrast(1.05)}
+.dgp-shot.run .kb-in{animation:kbIn 11s cubic-bezier(.25,.1,.25,1) forwards}
+.dgp-shot.run .kb-out{animation:kbOut 9s cubic-bezier(.25,.1,.25,1) forwards}
+.dgp-shot.run .kb-v{animation:kbV 7s linear forwards}
+.dgp-shot.run .kb-v2{animation:kbV2 7s linear forwards}
+.kb-in{transform-origin:47% 30%}
+.kb-out{transform-origin:47% 34%;filter:brightness(.78) saturate(.95)}
+@keyframes kbIn{from{transform:scale(1.02)}to{transform:scale(1.14)}}
+@keyframes kbOut{from{transform:scale(1.2)}to{transform:scale(1.03)}}
+@keyframes kbV{from{transform:scale(1.03)}to{transform:scale(1.13)}}
+@keyframes kbV2{from{transform:scale(1.13) translateX(1.5%)}to{transform:scale(1.04) translateX(0)}}
+.dgp-shade{position:absolute;inset:0;background:radial-gradient(120% 90% at 50% 45%,#0000 40%,#000a 100%),linear-gradient(#0000 55%,#0006)}
+.dgp-shade.low{background:radial-gradient(120% 90% at 50% 40%,#0000 35%,#000b 100%),linear-gradient(#0000 45%,#000c 92%)}
+.dgp-shade.name{background:radial-gradient(110% 80% at 50% 35%,#0000 25%,#000c 100%),linear-gradient(#0000 30%,#000d 85%)}
+.dgp-grain{position:absolute;inset:0;z-index:3;pointer-events:none;opacity:.07;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");animation:grain 1s steps(4) infinite}
+@keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-3%,2%)}50%{transform:translate(2%,-3%)}75%{transform:translate(-2%,-1%)}}
+
+/* פסי קולנוע */
+.dgp-bar{position:absolute;left:0;right:0;height:0;background:#000;z-index:6;transition:height 2.4s cubic-bezier(.6,0,.2,1)}
+.dgp-bar.top{top:0}.dgp-bar.bot{bottom:0}
+.dgp.rolling .dgp-bar{height:var(--bar)}
+
+/* כתוביות */
+.dgp-titles{position:absolute;inset:0;z-index:5;pointer-events:none}
+.dgp-card{position:absolute;left:6vw;right:6vw;text-align:center;opacity:0;filter:blur(8px);transform:translateY(10px);transition:opacity 1.1s ease,filter 1.1s ease,transform 3.2s cubic-bezier(.2,.7,.2,1)}
+.dgp-card.in{opacity:1;filter:blur(0);transform:none;transition:opacity 1.5s ease,filter 1.5s ease,transform 4s cubic-bezier(.2,.7,.2,1)}
+.dgp-card.low{bottom:calc(var(--bar) + clamp(34px,8vh,84px))}
+.dgp-card.mid{top:50%;margin-top:-1.2em}
+.dgp-card h2{margin:0;font-weight:800;font-size:clamp(28px,4.3vw,60px);line-height:1.12;letter-spacing:-.01em;color:var(--cream);text-shadow:0 2px 24px #000c,0 0 2px #0008}
+.dgp-card h2.lt{font-weight:300;font-size:clamp(26px,3.7vw,52px);letter-spacing:.005em}
+.dgp-card h2.lt strong{font-weight:800;color:var(--gold)}
+.dgp-kick{margin:0 0 14px;font-weight:400;font-size:clamp(11px,1.05vw,14px);letter-spacing:.14em;color:var(--gold);text-shadow:0 1px 12px #000}
+.dgp-kick i{font-style:normal;opacity:.5;margin:0 .2em}
+.dgp-line{margin:12px 0 0;font-weight:300;font-size:clamp(16px,1.7vw,23px);letter-spacing:.04em;color:#efe3c8;text-shadow:0 1px 16px #000}
+.city-c h2{font-size:clamp(40px,6vw,86px);font-weight:900;letter-spacing:.02em}
+.name-c{bottom:calc(var(--bar) + clamp(30px,7vh,80px))}
+.name-c h1{margin:0;font-weight:900;font-size:clamp(56px,10vw,150px);line-height:1;letter-spacing:.015em;background:linear-gradient(180deg,#fff4d6 0%,#f0d08a 48%,#c9984a 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 30px #000c)}
+.dgp-sub{margin:18px 0 0;font-weight:300;font-size:clamp(16px,1.9vw,26px);letter-spacing:.05em;color:var(--cream);opacity:0;transform:translateY(6px);transition:opacity 1.4s ease,transform 2.4s ease;text-shadow:0 1px 14px #000}
+.dgp-sub.in{opacity:1;transform:none}
+
+/* מפה */
+.dgp-shot.map{background:radial-gradient(90% 80% at 55% 45%,#1d140a 0%,#0a0806 60%,#030303 100%)}
+.dgp-mapwrap{position:absolute;inset:var(--bar) 0}
+.dgp-mapwrap:after{content:'';position:absolute;inset:0;pointer-events:none;background:radial-gradient(75% 70% at 52% 48%,#0000 45%,#000c 100%),linear-gradient(#0000 70%,#000a)}
+.dgp-map{position:absolute;inset:0;width:100%;height:100%;direction:ltr}
+.dgp-cam{transform-box:view-box;transform-origin:390px 220px;transform:scale(1.32)}
+.dgp-shot.map.on .dgp-cam{animation:cam 7.5s cubic-bezier(.3,0,.2,1) forwards}
+@keyframes cam{from{transform:scale(1.32)}to{transform:scale(1)}}
+.dgp-land path{fill:#1c160e;stroke:#5b4a2e;stroke-width:.6;opacity:.95}
+.dgp-rbase{fill:none;stroke:#e2c27e22;stroke-width:1.4}
+.dgp-rbase.vision{stroke-dasharray:3 5}
+.dgp-route{fill:none;stroke:#f3d48b;stroke-width:2.4;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset .72s cubic-bezier(.5,0,.5,1)}
+.dgp-route.vision{stroke-dasharray:.012 .02;stroke-dashoffset:0;opacity:0;transition:opacity 1s ease}
+.dgp-shot.run .dgp-route{stroke-dashoffset:0}
+.dgp-shot.run .dgp-route.vision{opacity:1}
+.dgp-pin{opacity:0;transition:opacity .6s ease}
+.dgp-shot.run .dgp-pin{opacity:1}
+.dgp-pin .ring{fill:#f3d48b22;stroke:#f3d48b66;stroke-width:1}
+.dgp-pin .dot{fill:#fff2cc}
+.dgp-pin text{font-family:Heebo,Arial,sans-serif;font-weight:700;font-size:15px;fill:var(--cream);paint-order:stroke;stroke:#0a0806;stroke-width:4px;letter-spacing:.02em}
+.map-k{position:absolute;z-index:2;top:clamp(18px,4vh,40px);left:0;right:0;text-align:center;font-size:clamp(13px,1.3vw,17px);opacity:0;transition:opacity 1.4s ease}
+.map-k.in{opacity:1}
+.dgp-go{position:absolute;z-index:2;left:0;right:0;bottom:clamp(22px,6vh,56px);display:flex;justify-content:center;opacity:0;transform:translateY(10px);transition:opacity 1.2s ease,transform 1.6s cubic-bezier(.2,.8,.2,1);pointer-events:none}
+.dgp-go.on{opacity:1;transform:none;pointer-events:auto}
+.dgp-go .cta{width:auto;min-width:250px;color:var(--ink);font-family:Heebo,Arial,sans-serif;font-size:17px;box-shadow:0 0 0 6px #d7ff5314,0 12px 40px #d7ff5333}
+
+/* פתיח: המכתב */
+.dgp-letter{position:absolute;inset:0;z-index:7;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#050505;transition:opacity 1.3s ease .35s,visibility 0s 1.7s}
+.dgp-letter.open{opacity:0;visibility:hidden;pointer-events:none}
+.dgp-glow{position:absolute;inset:0;background:radial-gradient(50% 45% at 50% 52%,#5a3712 0%,#24150a 40%,#050505 75%);animation:glow 5s ease-in-out infinite alternate}
+@keyframes glow{from{opacity:.8}to{opacity:1}}
+.dgp-letter > *:not(.dgp-glow){position:relative}
+.l-k{margin-bottom:clamp(26px,5vh,48px);animation:fadeUp 1.6s .3s ease both}
+.dgp-hint{margin:clamp(26px,5vh,46px) 0 0;font-weight:300;font-size:15px;letter-spacing:.12em;color:#cdb68a;animation:fadeUp 1.6s 1.2s ease both,breathe 2.6s 2.8s ease-in-out infinite}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes breathe{50%{opacity:.45}}
+.dgp-env{--w:min(460px,80vw);width:var(--w);height:calc(var(--w) * .64);position:relative;filter:drop-shadow(0 40px 50px #000c) drop-shadow(0 0 60px #ffb15a22);animation:fadeUp 1.8s .1s cubic-bezier(.2,.8,.2,1) both;transition:transform 1.6s cubic-bezier(.5,0,.2,1)}
+.dgp-letter.open .dgp-env{transform:scale(1.12)}
+.env-back,.env-front,.env-flap,.env-sheet{position:absolute;inset:0;border-radius:4px}
+.env-back,.env-front,.env-flap{background:radial-gradient(120% 90% at 30% 20%,#efdcb4 0%,#d9bd88 45%,#b8955c 100%);box-shadow:inset 0 0 40px #6e4a1d55}
+.env-back{filter:brightness(.8)}
+.env-sheet{inset:6% 6% 10%;background:linear-gradient(#f4e7cb,#e2cb9c);transition:transform 1.1s cubic-bezier(.3,.7,.2,1) .25s}
+.env-front{clip-path:polygon(0 0,50% 56%,100% 0,100% 100%,0 100%);z-index:2}
+.env-front:before{content:'';position:absolute;inset:0;background:linear-gradient(32deg,#0000 49.6%,#6e4a1d44 50%,#0000 50.6%),linear-gradient(-32deg,#0000 49.6%,#6e4a1d44 50%,#0000 50.6%)}
+.env-flap{clip-path:polygon(0 0,100% 0,50% 58%);transform-origin:50% 0;z-index:3;transition:transform .9s cubic-bezier(.5,0,.2,1) .1s,filter .9s .1s;filter:drop-shadow(0 6px 6px #0006)}
+.dgp-letter.open .env-flap{transform:perspective(900px) rotateX(178deg);z-index:0;filter:brightness(.65)}
+.dgp-letter.open .env-sheet{transform:translateY(-45%)}
+.dgp-seal{position:absolute;z-index:4;left:50%;top:56%;width:clamp(70px,17vw,92px);aspect-ratio:1;margin:calc(clamp(70px,17vw,92px) / -2) 0 0 calc(clamp(70px,17vw,92px) / -2);border:0;padding:0;border-radius:50%;background:none;cursor:pointer;animation:sealPulse 2.6s 2s ease-in-out infinite}
+.dgp-seal:focus-visible{outline:2px solid var(--gold);outline-offset:6px}
+.dgp-seal .half{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle at 36% 30%,#c4423a 0%,#8a1c1c 52%,#4c0c0c 100%);box-shadow:inset 0 0 0 5px #6f1515,inset 0 0 0 7px #a83a32,inset 0 0 0 14px #7a1818,0 6px 14px #0008;transition:transform .9s cubic-bezier(.4,0,.2,1),opacity .9s}
+.dgp-seal .half:after{content:'';position:absolute;inset:32%;border-radius:50%;border:2px solid #d0605566;box-shadow:inset 0 0 6px #0006}
+.dgp-seal .half.a{clip-path:polygon(0 0,58% 0,44% 48%,54% 100%,0 100%)}
+.dgp-seal .half.b{clip-path:polygon(58% 0,100% 0,100% 100%,54% 100%,44% 48%)}
+.dgp-letter.open .dgp-seal{animation:none}
+.dgp-letter.open .dgp-seal .half.a{transform:translate(-40%,60%) rotate(-28deg);opacity:0}
+.dgp-letter.open .dgp-seal .half.b{transform:translate(40%,70%) rotate(24deg);opacity:0}
+@keyframes sealPulse{50%{transform:scale(1.05);filter:drop-shadow(0 0 16px #ff9a5a55)}}
+
+/* דילוג */
+.dgp-skip{position:absolute;z-index:9;top:calc(var(--bar) / 2 - 18px);left:20px;min-height:36px;padding:7px 18px;border-radius:999px;border:1px solid #ffffff38;background:#0007;color:#f3ead7;font-weight:400;font-size:14px;letter-spacing:.06em;cursor:pointer;backdrop-filter:blur(6px);transition:background .2s,border-color .2s}
+.dgp:not(.rolling) .dgp-skip{top:18px}
+.dgp-skip:hover{background:#ffffff1c;border-color:#ffffff70}
+
+/* מובייל לאורך */
+@media (max-aspect-ratio:1/1){
+  .dgp{--bar:7vh}
+  .dgp-img{object-position:47% 50%}
+  .dgp-vid.ship{object-position:61% 50%}
+  .dgp-card{left:7vw;right:7vw}
+  .dgp-card.mid{top:auto;margin:0;bottom:calc(var(--bar) + 12vh)}
+  .dgp-map{width:100%}
+  .dgp-pin text{font-size:25px;stroke-width:6px}
+  .dgp-pin .dot{r:5}
+  .dgp-pin .ring{r:12}
+  .dgp-skip{top:calc(var(--bar) / 2 - 18px);left:14px}
 }
-@media(max-height:560px) and (min-width:701px){.dgi{padding-top:56px}.dgi-stage{gap:12px}}
+@media (max-width:640px){.dgp-card h2.lt strong{display:block}}
+
+/* בלי תנועה: רק הפריים האחרון */
+.dgp.still *,.dgp.still{transition:none!important;animation:none!important}
+.dgp.still .dgp-route{stroke-dashoffset:0}
+.dgp.still .dgp-cam{transform:none}
