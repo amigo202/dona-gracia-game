@@ -1,10 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import deskImg from './intro-desk.webp';
 import backImg from './intro-back.webp';
+import CFG from './intro-cues.json';
 import { LAND, GEO, BENDS } from './introMap';
 import { DATA } from '../game/store';
 import './intro.css';
 
-/* פתיחה קולנועית איטית (כ־46 שניות), כמו פרומו לסרט. בלי קול: הסרטונים מושתקים ואין מוזיקה. */
+/* פתיחה קולנועית (כ־55 שניות) שמתחילה לבד, כמו פרומו לסרט.
+   כל התזמון נגזר מטבלת הקריינות intro-cues.json: מעברי שוטים נופלים בהפסקות בין המשפטים. */
 const KEY = 'dg-intro-seen';
 const CITIES = [
   { name: 'ליסבון', line: 'כאן התחילה הדרך', v: 'lisbon' },
@@ -14,16 +17,31 @@ const CITIES = [
   { name: 'איסטנבול', line: 'נותנת לעוצמה כיוון', v: 'istanbul' },
   { name: 'טבריה', line: 'חזון שחוצה מרחק', v: 'tiberias' },
 ];
-/* ציר זמן בשניות מרגע שבירת החותם */
-const CITY0 = 16.6, CITY_LEN = 2.9;
-const S = {
-  back1: [1.2, 8.6], t1: [2.9, 7.6],
-  ship: [9.4, CITY0 + 0.6], t2: [10.3, 13.3], t3: [13.8, 16.4],
-  back2: [CITY0 + CITY_LEN * 6 + 0.7, 41.0], name: [CITY0 + CITY_LEN * 6 + 1.7, 40.6], sub: [CITY0 + CITY_LEN * 6 + 2.9, 40.6],
-  map: [41.4, 999], route: 42.4, go: 46.6,
-};
-const FINAL = 47.2;
-const SEG = 0.72; // משך כל קטע במסלול
+type Cue = { id: string; shot: string; start: number; end: number; text: string };
+type R = [number, number];
+const SEG = 0.72; // משך כל קטע במסלול המפה
+const AUDIO_BASE = './intro/'; // יחסית ל־index.html של הבנייה (גם בתצוגה המקדימה בתת־תיקייה)
+
+/** גוזר את כל ציר הזמן מטבלת הקריינות */
+export function timeline(cues: Cue[] = CFG.cues as Cue[]) {
+  const c = (id: string) => cues.find(x => x.id === id)!;
+  const of = (s: string) => cues.filter(x => x.shot === s);
+  const gap = (a: string, b: string) => (of(a).slice(-1)[0].end + of(b)[0].start) / 2; // מעבר באמצע ההפסקה
+  const back = gap('desk', 'back'), ship = gap('back', 'ship'), cities = gap('ship', 'cities');
+  const nameT = c('n12').start - 0.2, name = nameT - 0.3, map = gap('name', 'map');
+  const cityLen = (name - cities) / 6;
+  const go = c('n14').end + 0.5;
+  return {
+    welcome: CFG.welcome as R,
+    shots: { desk: [0, back + 0.5] as R, back: [back, ship + 0.4] as R, ship: [ship, cities + 0.6] as R, name: [name, map + 0.4] as R, map: [map, 999] as R },
+    cities, cityLen, nameT, map,
+    t1510: [c('n1').start - 0.2, c('n2').end + 0.2] as R,
+    t2: [c('n7').start - 0.2, c('n8').start - 0.15] as R,
+    t3: [c('n8').start, cities - 0.3] as R,
+    name: [nameT, map] as R, sub: [c('n13').start - 0.4, map] as R,
+    route: map + 0.6, mapKick: map + 0.9, go, final: go + 0.6,
+  };
+}
 
 export function shouldShowIntro(route: string) {
   if (typeof window === 'undefined') return false;
@@ -38,15 +56,24 @@ function curve(i: number) {
 }
 
 export function Intro({ onDone }: { onDone: () => void }) {
+  const T = useMemo(() => timeline(), []);
+  const cues = CFG.cues as Cue[];
+  const A = CFG.audio as { music: string | null; narration: string | null; musicNameAt: number; musicVolume: number; musicUnderNarration: number; narrationVolume: number; narrationAt?: number };
+  const hasAudio = !!(A.music || A.narration);
   const reduce = useRef(typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches).current;
-  const [t, setT] = useState(reduce ? FINAL : -1); // ‎-1 = מחכה ללחיצה על החותם
-  const [cracked, setCracked] = useState(false);
+  const [t, setT] = useState(reduce ? T.final : 0);
+  const [rolling, setRolling] = useState(false);
   const [leaving, setLeaving] = useState(false);
+  const [sound, setSound] = useState<'off' | 'on' | 'muted'>('off');
   const vids = useRef<(HTMLVideoElement | null)[]>([]);
   const started = useRef<boolean[]>([]);
   const t0 = useRef(0);
+  const tNow = useRef(0);
   const raf = useRef(0);
+  const music = useRef<HTMLAudioElement | null>(null);
+  const narr = useRef<HTMLAudioElement | null>(null);
   const narrow = useRef(typeof innerWidth !== 'undefined' && innerWidth < 640).current;
+  const musicOffset = T.nameT - A.musicNameAt; // אם הקריינות זזה, המוזיקה זזה איתה כך שהשיא נשאר על השם
 
   useEffect(() => {
     try { sessionStorage.setItem(KEY, '1'); } catch { /* פרטי */ }
@@ -54,28 +81,30 @@ export function Intro({ onDone }: { onDone: () => void }) {
     return () => { document.body.style.overflow = prev; };
   }, []);
 
-  const start = () => {
-    if (cracked) return; setCracked(true);
+  // התחלה אוטומטית: ברגע שתמונת השולחן נטענה (או אחרי 1.5 שניות לכל המאוחר)
+  const go0 = useRef(false);
+  const begin = () => {
+    if (go0.current || reduce) return; go0.current = true; setRolling(true);
     t0.current = performance.now();
-    // לחיצה = מחווה: מתחילים לטעון/לנגן את הסרטון הראשון כבר עכשיו כדי שבמובייל לא ייחסם
-    vids.current.forEach(v => { if (v) { v.muted = true; v.load(); } });
     let last = -1;
     const tick = () => {
-      const s = (performance.now() - t0.current) / 1000; const q = Math.floor(s * 20) / 20;
+      const s = (performance.now() - t0.current) / 1000; tNow.current = s; const q = Math.floor(s * 20) / 20;
       if (q !== last) { last = q; setT(q); }
-      if (s < FINAL + 0.2) raf.current = requestAnimationFrame(tick);
+      if (s < T.final + 0.2) raf.current = requestAnimationFrame(tick);
     };
     raf.current = requestAnimationFrame(tick);
   };
-  useEffect(() => () => cancelAnimationFrame(raf.current), []);
+  useEffect(() => { if (reduce) return; const id = window.setTimeout(begin, 1500); return () => clearTimeout(id); }, []); // eslint-disable-line
+  useEffect(() => () => { cancelAnimationFrame(raf.current); music.current?.pause(); narr.current?.pause(); }, []);
 
-  // הפעלת סרטונים בדיוק כשהשוט שלהם מתחיל, ועצירה אחרי שהוא נעלם
-  const shots: [number, number][] = [S.ship as [number, number], ...CITIES.map((_, i) => [CITY0 + i * CITY_LEN, CITY0 + (i + 1) * CITY_LEN + (i === 5 ? 0.6 : 0)] as [number, number])];
+  // סרטונים: מתחילים בדיוק כשהשוט שלהם מתחיל, ונעצרים אחרי שהוא נעלם
+  const cityR = (i: number): R => [T.cities + i * T.cityLen, T.cities + (i + 1) * T.cityLen + (i === 5 ? 0.6 : 0.25)];
+  const shots: R[] = [T.shots.ship, ...CITIES.map((_, i) => cityR(i))];
   useEffect(() => {
-    if (t < 0 || reduce) return;
+    if (!rolling || reduce) return;
     shots.forEach(([a, b], i) => {
       const v = vids.current[i]; if (!v) return;
-      if (t >= a - 0.25 && !started.current[i]) {
+      if (t >= a - 0.3 && !started.current[i]) {
         started.current[i] = true;
         try { v.currentTime = 0; } catch { /* עוד לא נטען */ }
         v.playbackRate = i === 0 ? 0.75 : 0.8; v.play().catch(() => { /* הפוסטר יישאר */ });
@@ -84,46 +113,86 @@ export function Intro({ onDone }: { onDone: () => void }) {
     });
   }, [t]); // eslint-disable-line
 
+  // קול: דפדפנים חוסמים צליל אוטומטי, אז מפעילים בלחיצה ומסנכרנים למיקום הנוכחי בציר הזמן
+  const syncAudio = () => {
+    const now = tNow.current;
+    const m = music.current, n = narr.current;
+    if (m) {
+      const pos = now - musicOffset;
+      if (pos >= 0 && pos < (m.duration || 999)) { if (Math.abs(m.currentTime - pos) > 0.3) m.currentTime = pos; if (m.paused) m.play().catch(() => {}); }
+    }
+    if (n) {
+      const pos = now - (A.narrationAt || 0);
+      if (pos >= 0 && pos < (n.duration || 999)) { if (Math.abs(n.currentTime - pos) > 0.3) n.currentTime = pos; if (n.paused) n.play().catch(() => {}); }
+    }
+  };
+  const enableSound = () => {
+    if (A.music && !music.current) { const m = new Audio(AUDIO_BASE + A.music); m.preload = 'auto'; m.volume = A.narration ? A.musicUnderNarration : A.musicVolume; m.addEventListener('loadedmetadata', () => syncAudio()); m.addEventListener('canplay', () => syncAudio()); music.current = m; }
+    if (A.narration && !narr.current) { const n = new Audio(AUDIO_BASE + A.narration); n.preload = 'auto'; n.volume = A.narrationVolume; n.addEventListener('loadedmetadata', () => syncAudio()); narr.current = n; }
+    [music.current, narr.current].forEach(a => { if (a) a.muted = false; });
+    (window as unknown as { __dgpAudio?: unknown }).__dgpAudio = { music: music.current, narration: narr.current, musicOffset }; // לבדיקות
+    setSound('on'); syncAudio();
+  };
+  const toggleMute = () => {
+    if (sound === 'off') return enableSound();
+    const mute = sound === 'on';
+    [music.current, narr.current].forEach(a => { if (a) a.muted = mute; });
+    setSound(mute ? 'muted' : 'on'); if (!mute) syncAudio();
+  };
+  useEffect(() => { if (sound !== 'on') return; const id = window.setInterval(syncAudio, 1000); return () => clearInterval(id); }, [sound]); // eslint-disable-line
+
+  const fadeOutAudio = () => {
+    const as = [music.current, narr.current].filter(Boolean) as HTMLAudioElement[];
+    const v0 = as.map(a => a.volume); let k = 0;
+    const id = window.setInterval(() => { k++; as.forEach((a, i) => { a.volume = Math.max(0, v0[i] * (1 - k / 10)); }); if (k >= 10) { clearInterval(id); as.forEach(a => a.pause()); } }, 80);
+  };
   const close = () => {
     if (leaving) return; setLeaving(true);
-    vids.current.forEach(v => v?.pause());
+    vids.current.forEach(v => v?.pause()); fadeOutAudio();
     window.setTimeout(onDone, reduce ? 0 : 900);
   };
   useEffect(() => { const k = (e: KeyboardEvent) => { if (e.key === 'Escape') close(); }; addEventListener('keydown', k); return () => removeEventListener('keydown', k); });
 
-  const on = (r: number[]) => t >= r[0] && t < r[1];
-  const run = (a: number) => t >= a; // הזום האיטי רץ מרגע שהשוט מתחיל ולא מתאפס כשהוא נעלם
+  const on = (r: R) => t >= r[0] && t < r[1];
+  const run = (a: number) => rolling && t >= a;
   const vb = narrow ? '28 34 724 382' : '0 0 800 450';
-  const goOn = t >= S.go;
+  const goOn = t >= T.go;
+  const cue = cues.find(c => t >= c.start - 0.1 && t < c.end + 0.5);
+  const opened = run(0.5);
 
-  return <div className={'dgp' + (cracked ? ' rolling' : '') + (leaving ? ' out' : '') + (reduce ? ' still' : '')} dir="rtl" lang="he" role="dialog" aria-modal="true" aria-label="פתיחה: מסע בעקבות דונה גרציה">
-    {/* שוט 1: הגב שלה מול החלון */}
-    <div className={'dgp-shot' + (on(S.back1) ? ' on' : '') + (run(S.back1[0]) ? ' run' : '')}>
+  return <div className={'dgp' + (rolling ? ' rolling' : '') + (leaving ? ' out' : '') + (reduce ? ' still' : '')} dir="rtl" lang="he" role="dialog" aria-modal="true" aria-label="פתיחה: מסע בעקבות דונה גרציה" data-t={t}>
+    {/* שוט 1: שולחן המכתבים לאור הנר. המכתב "נפתח" לבד: אור חם מתפשט מהחותם והמצלמה נכנסת פנימה */}
+    <div className={'dgp-shot desk' + (reduce || on(T.shots.desk) ? ' on' : '') + (run(0) ? ' run' : '') + (opened ? ' opened' : '')}>
+      <img className="dgp-img desk-img" src={deskImg} alt="" onLoad={begin} />
+      <div className="dgp-candle" aria-hidden="true" />
+      <div className="dgp-bloom" aria-hidden="true" />
+      <div className="dgp-dust" aria-hidden="true" />
+      <div className="dgp-shade desk" />
+    </div>
+    {/* שוט 2: הגב שלה מול החלון */}
+    <div className={'dgp-shot' + (on(T.shots.back) ? ' on' : '') + (run(T.shots.back[0]) ? ' run' : '')}>
       <img className="dgp-img kb-in" src={backImg} alt="" />
       <div className="dgp-shade low" />
     </div>
-    {/* שוט 2: הספינה */}
-    <div className={'dgp-shot' + (on(S.ship) ? ' on' : '') + (run(S.ship[0]) ? ' run' : '')}>
+    {/* שוט 3: הספינה */}
+    <div className={'dgp-shot' + (on(T.shots.ship) ? ' on' : '') + (run(T.shots.ship[0]) ? ' run' : '')}>
       <video ref={el => (vids.current[0] = el)} className="dgp-vid kb-v ship" src={`${DATA}videos/opening.mp4`} poster={`${DATA}videos/opening.jpg`} muted playsInline preload="auto" />
       <div className="dgp-shade low" />
     </div>
     {/* שש הערים */}
-    {CITIES.map((c, i) => {
-      const a = CITY0 + i * CITY_LEN, b = a + CITY_LEN + (i === 5 ? 0.6 : 0);
-      return <div key={c.v} className={'dgp-shot city' + (on([a, b]) ? ' on' : '') + (run(a) ? ' run' : '')}>
-        <video ref={el => (vids.current[i + 1] = el)} className={'dgp-vid ' + (i % 2 ? 'kb-v2' : 'kb-v')} src={`${DATA}videos/${c.v}.mp4`} poster={`${DATA}videos/${c.v}.jpg`} muted playsInline preload="auto" />
-        <div className="dgp-shade low" />
-      </div>;
-    })}
-    {/* שוט 7: שוב הגב, השם */}
-    <div className={'dgp-shot' + (on(S.back2) ? ' on' : '') + (run(S.back2[0]) ? ' run' : '')}>
+    {CITIES.map((c, i) => <div key={c.v} className={'dgp-shot city' + (on(cityR(i)) ? ' on' : '') + (run(cityR(i)[0]) ? ' run' : '')}>
+      <video ref={el => (vids.current[i + 1] = el)} className={'dgp-vid ' + (i % 2 ? 'kb-v2' : 'kb-v')} src={`${DATA}videos/${c.v}.mp4`} poster={`${DATA}videos/${c.v}.jpg`} muted playsInline preload="auto" />
+      <div className="dgp-shade low" />
+    </div>)}
+    {/* שוט 5: שוב הגב, השם בזהב */}
+    <div className={'dgp-shot' + (on(T.shots.name) ? ' on' : '') + (run(T.shots.name[0]) ? ' run' : '')}>
       <img className="dgp-img kb-out" src={backImg} alt="" />
       <div className="dgp-shade name" />
     </div>
-    {/* שוט 8: המפה */}
-    <div className={'dgp-shot map' + (on(S.map) ? ' on' : '') + (run(S.route) ? ' run' : '')}>
+    {/* שוט 6: המפה */}
+    <div className={'dgp-shot map' + (on(T.shots.map) || reduce ? ' on' : '') + (run(T.route) || reduce ? ' run' : '')}>
       <div className="dgp-mapwrap">
-        <p className={'dgp-kick map-k' + (run(S.map[0] + 0.8) ? ' in' : '')}>מליסבון ועד טבריה</p>
+        <p className={'dgp-kick map-k' + (run(T.mapKick) || reduce ? ' in' : '')}>מליסבון ועד טבריה</p>
         <svg className="dgp-map" viewBox={vb} preserveAspectRatio="xMidYMid meet" aria-hidden="true">
           <defs><filter id="dgpglow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter></defs>
           <g className="dgp-cam"><g className="dgp-land">{LAND.map((d, i) => <path key={i} d={d} />)}</g>
@@ -147,39 +216,33 @@ export function Intro({ onDone }: { onDone: () => void }) {
 
     <div className="dgp-grain" aria-hidden="true" />
 
-    {/* כתוביות */}
-    <div className="dgp-titles" aria-live="polite">
-      <div className={'dgp-card low' + (on(S.t1) ? ' in' : '')}><p className="dgp-kick">פורטוגל · המאה ה־16</p><h2>שנת 1510. ליסבון.</h2></div>
-      <div className={'dgp-card low' + (on(S.t2) ? ' in' : '')}><h2 className="lt">ההיסטוריה זוכרת מלכים.</h2></div>
-      <div className={'dgp-card low' + (on(S.t3) ? ' in' : '')}><h2 className="lt">המסע הזה מספר על <strong>מלכה בלי כתר.</strong></h2></div>
+    {/* כתוביות גדולות */}
+    <div className="dgp-titles" aria-hidden="true">
+      <div className={'dgp-card welcome' + (on(T.welcome) ? ' in' : '')}>
+        <i className="rule" /><h1>ברוכות הבאות למסע</h1><p className="dgp-kick">מסע בעקבות דונה גרציה</p><i className="rule" />
+      </div>
+      <div className={'dgp-card low' + (on(T.t1510) ? ' in' : '')}><p className="dgp-kick">פורטוגל · המאה ה־16</p><h2>שנת 1510. ליסבון.</h2></div>
+      <div className={'dgp-card low' + (on(T.t2) ? ' in' : '')}><h2 className="lt">ההיסטוריה זוכרת מלכים.</h2></div>
+      <div className={'dgp-card low' + (on(T.t3) ? ' in' : '')}><h2 className="lt">המסע הזה מספר על <strong>מלכה בלי כתר.</strong></h2></div>
       {CITIES.map((c, i) => {
-        const a = CITY0 + i * CITY_LEN;
-        return <div key={c.v} className={'dgp-card low city-c' + (on([a + 0.45, a + CITY_LEN - 0.15 + (i === 5 ? 0.5 : 0)]) ? ' in' : '')}>
+        const [a, b] = cityR(i);
+        return <div key={c.v} className={'dgp-card low city-c' + (on([a + 0.4, b - 0.35 + (i === 5 ? 0.2 : 0)]) ? ' in' : '')}>
           <p className="dgp-kick">0{i + 1} <i>/</i> 06</p><h2>{c.name}</h2><p className="dgp-line">{c.line}</p>
         </div>;
       })}
-      <div className={'dgp-card name-c' + (on(S.name) ? ' in' : '')}>
+      <div className={'dgp-card name-c' + (on(T.name) ? ' in' : '')}>
         <h1>דונה גרציה</h1>
-        <p className={'dgp-sub' + (on(S.sub) ? ' in' : '')}>אישה אחת. מסע שחצה גבולות.</p>
+        <p className={'dgp-sub' + (on(T.sub) ? ' in' : '')}>אישה אחת. מסע שחצה גבולות.</p>
       </div>
     </div>
 
-    {/* פסי קולנוע */}
+    {/* פסי קולנוע, ובפס התחתון כתובית הקריינות */}
     <div className="dgp-bar top" aria-hidden="true" /><div className="dgp-bar bot" aria-hidden="true" />
+    {!reduce && <p className={'dgp-subtitle' + (cue ? ' in' : '')} aria-live="polite" key={cue?.id || 'none'}>{cue?.text || ''}</p>}
 
-    {/* פתיח: מכתב חתום */}
-    {!reduce && <div className={'dgp-letter' + (cracked ? ' open' : '')}>
-      <div className="dgp-glow" />
-      <p className="dgp-kick l-k">פורטוגל · המאה ה־16</p>
-      <div className="dgp-env">
-        <div className="env-back" /><div className="env-sheet" /><div className="env-front" /><div className="env-flap" />
-        <button type="button" className="dgp-seal" onClick={start} aria-label="שברו את החותם והתחילו">
-          <span className="half a" /><span className="half b" />
-        </button>
-      </div>
-      <p className="dgp-hint">לחצו על החותם</p>
-    </div>}
-
+    {hasAudio && !reduce && <button type="button" className={'dgp-sound ' + sound} onClick={toggleMute} aria-pressed={sound === 'on'} aria-label={sound === 'off' ? 'הפעלת קול' : sound === 'on' ? 'השתקה' : 'ביטול השתקה'}>
+      <span className="ic" aria-hidden="true">{sound === 'on' ? '🔊' : sound === 'muted' ? '🔇' : '🔊'}</span>{sound === 'off' && <span>הפעלת קול</span>}
+    </button>}
     <button type="button" className="dgp-skip" onClick={close}>דילוג</button>
   </div>;
 }
