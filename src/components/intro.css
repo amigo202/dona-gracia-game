@@ -93,9 +93,11 @@
 .dgp-shot.desk.opened .dgp-bloom{animation:bloom 5.2s cubic-bezier(.3,.1,.2,1) forwards}
 @keyframes bloom{0%{opacity:0;transform:scale(.4)}35%{opacity:.95;transform:scale(1.5)}100%{opacity:.18;transform:scale(3.2)}}
 /* אבק באוויר */
-.dgp-dust{position:absolute;inset:-10%;pointer-events:none;opacity:0;mix-blend-mode:screen;background-image:radial-gradient(1.4px 1.4px at 12% 22%,#ffe9c0aa 50%,#0000),radial-gradient(1px 1px at 33% 64%,#ffe9c099 50%,#0000),radial-gradient(1.6px 1.6px at 58% 31%,#ffe9c088 50%,#0000),radial-gradient(1px 1px at 72% 74%,#ffe9c0aa 50%,#0000),radial-gradient(1.2px 1.2px at 86% 41%,#ffe9c077 50%,#0000),radial-gradient(1px 1px at 45% 12%,#ffe9c088 50%,#0000),radial-gradient(1.3px 1.3px at 22% 83%,#ffe9c066 50%,#0000);background-size:420px 380px;animation:dust 24s linear infinite;transition:opacity 3s ease}
-.dgp-shot.desk.run .dgp-dust{opacity:.7}
-@keyframes dust{from{transform:translate(0,0)}to{transform:translate(-90px,-140px)}}
+.dgp-dust,.dgp-dust:after{position:absolute;inset:-20%;pointer-events:none;mix-blend-mode:screen;background-image:radial-gradient(1.3px 1.3px at 12% 22%,#ffe9c0 50%,#0000),radial-gradient(1px 1px at 33% 64%,#ffe9c0 50%,#0000),radial-gradient(1.5px 1.5px at 58% 31%,#ffe9c0 50%,#0000),radial-gradient(1px 1px at 72% 78%,#ffe9c0 50%,#0000),radial-gradient(1.1px 1.1px at 87% 45%,#ffe9c0 50%,#0000);background-size:613px 547px}
+.dgp-dust{opacity:0;transition:opacity 3s ease;animation:dust 38s linear infinite;filter:blur(.4px)}
+.dgp-dust:after{content:'';inset:0;background-size:389px 467px;opacity:.6;transform:rotate(17deg);filter:blur(1px)}
+.dgp-shot.desk.run .dgp-dust{opacity:.32}
+@keyframes dust{from{transform:translate(0,0)}to{transform:translate(-70px,-120px)}}
 .dgp-shade.desk{background:radial-gradient(85% 75% at 50% 55%,#0000 30%,#000c 100%),linear-gradient(#0006,#0000 30%,#0000 60%,#000b)}
 
 /* כותרת הפתיחה */
