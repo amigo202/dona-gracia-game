@@ -92,6 +92,7 @@ export function Intro({ onDone }: { onDone: () => void }) {
       if (s < T.final + 0.2) raf.current = requestAnimationFrame(tick);
     };
     raf.current = requestAnimationFrame(tick);
+    if (hasAudio) enableSound(true); // ניסיון ניגון אוטומטי
   };
   useEffect(() => { if (reduce) return; const id = window.setTimeout(begin, 1500); return () => clearTimeout(id); }, []); // eslint-disable-line
   useEffect(() => () => { cancelAnimationFrame(raf.current); music.current?.pause(); narr.current?.pause(); }, []);
@@ -112,33 +113,63 @@ export function Intro({ onDone }: { onDone: () => void }) {
     });
   }, [t]); // eslint-disable-line
 
-  // קול: דפדפנים חוסמים צליל אוטומטי, אז מפעילים בלחיצה ומסנכרנים למיקום הנוכחי בציר הזמן
+  // קול: מנסים לנגן כבר בטעינה (עובד אם הדפדפן מרשה, למשל אחרי אינטראקציה קודמת באתר).
+  // אם נחסם, הנגיעה הראשונה בכל מקום במסך מפעילה את הקול, מסונכרן למיקום הנוכחי בציר הזמן.
+  const soundRef = useRef<'off' | 'on' | 'muted'>('off');
+  const setS = (v: 'off' | 'on' | 'muted') => { soundRef.current = v; setSound(v); };
+  const cueList = CFG.cues as Cue[];
+  const speaking = (now: number) => !!A.narration && cueList.some(c => now >= c.start - 0.25 && now < c.end + 0.35);
+  const musicTarget = (now: number) => (speaking(now) ? A.musicUnderNarration : A.musicVolume);
   const syncAudio = () => {
-    const now = tNow.current;
+    const now = tNow.current; const ps: Promise<void>[] = [];
     const m = music.current, n = narr.current;
     if (m) {
       const pos = now - musicOffset;
-      if (pos >= 0 && pos < (m.duration || 999)) { if (Math.abs(m.currentTime - pos) > 0.3) m.currentTime = pos; if (m.paused) m.play().catch(() => {}); }
+      if (pos >= 0 && pos < (m.duration || 999)) { if (Math.abs(m.currentTime - pos) > 0.3) { try { m.currentTime = pos; } catch { /* עוד לא נטען */ } } if (m.paused) ps.push(m.play()); }
     }
     if (n) {
       const pos = now - (A.narrationAt || 0);
-      if (pos >= 0 && pos < (n.duration || 999)) { if (Math.abs(n.currentTime - pos) > 0.3) n.currentTime = pos; if (n.paused) n.play().catch(() => {}); }
+      if (pos >= 0 && pos < (n.duration || 999)) { if (Math.abs(n.currentTime - pos) > 0.3) { try { n.currentTime = pos; } catch { /* עוד לא נטען */ } } if (n.paused) ps.push(n.play()); }
     }
+    return Promise.all(ps);
   };
-  const enableSound = () => {
-    if (A.music && !music.current) { const m = new Audio(AUDIO_BASE + A.music); m.preload = 'auto'; m.volume = A.narration ? A.musicUnderNarration : A.musicVolume; m.addEventListener('loadedmetadata', () => syncAudio()); m.addEventListener('canplay', () => syncAudio()); music.current = m; }
-    if (A.narration && !narr.current) { const n = new Audio(AUDIO_BASE + A.narration); n.preload = 'auto'; n.volume = A.narrationVolume; n.addEventListener('loadedmetadata', () => syncAudio()); narr.current = n; }
-    [music.current, narr.current].forEach(a => { if (a) a.muted = false; });
+  const ensureAudio = () => {
+    if (A.music && !music.current) { const m = new Audio(AUDIO_BASE + A.music); m.preload = 'auto'; m.volume = musicTarget(tNow.current); m.addEventListener('loadedmetadata', () => { if (soundRef.current === 'on') syncAudio().catch(() => {}); }); music.current = m; }
+    if (A.narration && !narr.current) { const n = new Audio(AUDIO_BASE + A.narration); n.preload = 'auto'; n.volume = A.narrationVolume; n.addEventListener('loadedmetadata', () => { if (soundRef.current === 'on') syncAudio().catch(() => {}); }); narr.current = n; }
     (window as unknown as { __dgpAudio?: unknown }).__dgpAudio = { music: music.current, narration: narr.current, musicOffset }; // לבדיקות
-    setSound('on'); syncAudio();
+  };
+  const enableSound = (auto = false) => {
+    if (soundRef.current !== 'off') return;
+    ensureAudio();
+    [music.current, narr.current].forEach(a => { if (a) a.muted = false; });
+    setS('on');
+    syncAudio().catch(() => { // הדפדפן חסם ניגון אוטומטי: מחכים לנגיעה
+      [music.current, narr.current].forEach(a => a?.pause());
+      if (auto) setS('off');
+    });
   };
   const toggleMute = () => {
-    if (sound === 'off') return enableSound();
-    const mute = sound === 'on';
+    if (soundRef.current === 'off') return enableSound();
+    const mute = soundRef.current === 'on';
     [music.current, narr.current].forEach(a => { if (a) a.muted = mute; });
-    setSound(mute ? 'muted' : 'on'); if (!mute) syncAudio();
+    setS(mute ? 'muted' : 'on'); if (!mute) syncAudio().catch(() => {});
   };
-  useEffect(() => { if (sound !== 'on') return; const id = window.setInterval(syncAudio, 1000); return () => clearInterval(id); }, [sound]); // eslint-disable-line
+  // נגיעה ראשונה בכל מקום (חוץ מכפתור הקול עצמו) מפעילה קול
+  useEffect(() => {
+    if (!hasAudio || reduce) return;
+    const h = (e: Event) => { const el = e.target as Element | null; if (el?.closest?.('.dgp-sound')) return; enableSound(); };
+    addEventListener('pointerdown', h, true); addEventListener('keydown', h, true);
+    return () => { removeEventListener('pointerdown', h, true); removeEventListener('keydown', h, true); };
+  }, []); // eslint-disable-line
+  // דאקינג: המוזיקה יורדת בעדינות מתחת לקריינות; וסנכרון כל שנייה
+  useEffect(() => {
+    if (sound !== 'on') return; let k = 0;
+    const id = window.setInterval(() => {
+      const m = music.current; if (m) { const tg = musicTarget(tNow.current), d = tg - m.volume; m.volume = Math.min(1, Math.max(0, m.volume + Math.sign(d) * Math.min(Math.abs(d), 0.05))); }
+      if (++k % 10 === 0) syncAudio().catch(() => {});
+    }, 100);
+    return () => clearInterval(id);
+  }, [sound]); // eslint-disable-line
 
   const fadeOutAudio = () => {
     const as = [music.current, narr.current].filter(Boolean) as HTMLAudioElement[];
@@ -236,8 +267,8 @@ export function Intro({ onDone }: { onDone: () => void }) {
     {/* פסי קולנוע */}
     <div className="dgp-bar top" aria-hidden="true" /><div className="dgp-bar bot" aria-hidden="true" />
 
-    {hasAudio && !reduce && <button type="button" className={'dgp-sound ' + sound} onClick={toggleMute} aria-pressed={sound === 'on'} aria-label={sound === 'off' ? 'הפעלת קול' : sound === 'on' ? 'השתקה' : 'ביטול השתקה'}>
-      <span className="ic" aria-hidden="true">{sound === 'on' ? '🔊' : sound === 'muted' ? '🔇' : '🔊'}</span>{sound === 'off' && <span>הפעלת קול</span>}
+    {hasAudio && !reduce && <button type="button" className={'dgp-sound ' + sound} onClick={toggleMute} aria-pressed={sound === 'on'} aria-label={sound === 'off' ? 'לחצו לשמע' : sound === 'on' ? 'השתקה' : 'ביטול השתקה'}>
+      <span className="ic" aria-hidden="true">{sound === 'muted' ? '🔇' : '🔊'}</span>{sound === 'off' && <span>לחצו לשמע</span>}
     </button>}
     <button type="button" className="dgp-skip" onClick={close}>דילוג</button>
   </div>;

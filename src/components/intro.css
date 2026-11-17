@@ -98,11 +98,12 @@
 /* כפתור קול */
 .dgp-sound{position:absolute;z-index:9;top:calc(var(--bar) / 2 - 18px);right:20px;min-height:36px;display:flex;align-items:center;gap:8px;padding:7px 16px 7px 18px;border-radius:999px;border:1px solid #e2c27e66;background:#0008;color:#f3ead7;font-weight:400;font-size:14px;letter-spacing:.04em;cursor:pointer;backdrop-filter:blur(6px);transition:background .2s,border-color .2s,padding .3s}
 .dgp-sound .ic{font-size:15px;line-height:1}
-.dgp-sound.off{animation:soundPulse 2.4s ease-in-out infinite}
+.dgp-sound.off{padding:9px 20px 9px 22px;font-size:15px;font-weight:500;background:#e2c27e;color:#1a1208;border-color:#f3d9a0;animation:soundPulse 2.2s ease-in-out infinite}
 .dgp-sound.on,.dgp-sound.muted{padding:7px 11px;border-color:#ffffff38}
 .dgp-sound:hover{background:#ffffff1c;border-color:#e2c27eaa}
+.dgp-sound.off:hover{background:#f0d699}
 .dgp-sound:focus-visible,.dgp-skip:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
-@keyframes soundPulse{0%,100%{box-shadow:0 0 0 0 #e2c27e44}50%{box-shadow:0 0 0 7px #e2c27e00,0 0 22px #e2c27e33}}
+@keyframes soundPulse{0%{box-shadow:0 0 0 0 #e2c27e88}70%{box-shadow:0 0 0 12px #e2c27e00,0 0 26px #e2c27e55}100%{box-shadow:0 0 0 0 #e2c27e00}}
 .dgp:not(.rolling) .dgp-sound{top:18px}
 
 /* דילוג */
@@ -122,6 +123,7 @@
   .dgp-pin .ring{r:12}
   .dgp-skip{top:calc(var(--bar) / 2 - 18px);left:14px}
   .dgp-sound{right:14px;font-size:13px;padding:6px 13px}
+  .dgp-sound.off{font-size:14px;padding:8px 16px}
   .dgp-card h2{font-size:clamp(28px,8.4vw,40px)}
   .dgp-kick{letter-spacing:.22em}
 }
