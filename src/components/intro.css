@@ -85,7 +85,7 @@
 .dgp-dust:after{content:'';inset:0;background-size:389px 467px;opacity:.6;transform:rotate(17deg);filter:blur(1px)}
 .dgp-shot.desk.run .dgp-dust{opacity:.18}
 @keyframes dust{from{transform:translate(0,0)}to{transform:translate(-70px,-120px)}}
-.dgp-shade.desk{background:radial-gradient(90% 80% at 50% 50%,#0000 45%,#0009 100%),linear-gradient(#0000 55%,#000a)}
+.dgp-shade.desk{background:radial-gradient(90% 80% at 50% 45%,#0000 45%,#0009 100%),linear-gradient(#0000 40%,#000a 62%,#000c 78%,#000a)}
 
 /* כפתור קול */
 .dgp-sound{position:absolute;z-index:9;top:calc(var(--bar) / 2 - 18px);right:20px;min-height:36px;display:flex;align-items:center;gap:8px;padding:7px 16px 7px 18px;border-radius:999px;border:1px solid #e2c27e66;background:#0008;color:#f3ead7;font-weight:400;font-size:14px;letter-spacing:.04em;cursor:pointer;backdrop-filter:blur(6px);transition:background .2s,border-color .2s,padding .3s}
@@ -125,7 +125,8 @@
   .dgp-card{left:5vw;right:5vw;top:72%}
   .dgp-card h2{font-size:clamp(22px,6.6vw,30px);line-height:1.28;max-width:100%}
   .dgp-card.name h2{font-size:clamp(34px,10vw,46px)}
-  .dgp-shade.low,.dgp-shade.name,.dgp-shade.desk{background:linear-gradient(#0005,#0000 22%,#0000 52%,#000c 88%)}
+  .dgp-shade.low,.dgp-shade.name{background:linear-gradient(#0005,#0000 22%,#0000 52%,#000c 88%)}
+  .dgp-shade.desk{background:linear-gradient(#0005,#0000 20%,#0000 46%,#000b 64%,#000d 82%,#000b)}
   .dgp-kick{letter-spacing:.22em}
 }
 
@@ -135,4 +136,4 @@
 .dgp.still .dgp-cam{transform:none}
 
 @keyframes camP{from{transform:scale(1.1)}to{transform:scale(.86)}}
-@keyframes deskPan{0%,19%{object-position:88% 50%}44%{object-position:46% 50%}100%{object-position:44% 50%}}
+@keyframes deskPan{0%,19%{object-position:88% 50%}44%{object-position:38% 50%}100%{object-position:35% 50%}}
