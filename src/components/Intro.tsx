@@ -57,7 +57,6 @@ function curve(i: number) {
 
 export function Intro({ onDone }: { onDone: () => void }) {
   const T = useMemo(() => timeline(), []);
-  const cues = CFG.cues as Cue[];
   const A = CFG.audio as { music: string | null; narration: string | null; musicNameAt: number; musicVolume: number; musicUnderNarration: number; narrationVolume: number; narrationAt?: number };
   const hasAudio = !!(A.music || A.narration);
   const reduce = useRef(typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches).current;
@@ -157,7 +156,6 @@ export function Intro({ onDone }: { onDone: () => void }) {
   const run = (a: number) => rolling && t >= a;
   const vb = narrow ? '28 34 724 382' : '0 0 800 450';
   const goOn = t >= T.go;
-  const cue = cues.find(c => t >= c.start - 0.1 && t < c.end + 0.5);
   const opened = run(0.5);
 
   return <div className={'dgp' + (rolling ? ' rolling' : '') + (leaving ? ' out' : '') + (reduce ? ' still' : '')} dir="rtl" lang="he" role="dialog" aria-modal="true" aria-label="פתיחה: מסע בעקבות דונה גרציה" data-t={t}>
@@ -216,29 +214,27 @@ export function Intro({ onDone }: { onDone: () => void }) {
 
     <div className="dgp-grain" aria-hidden="true" />
 
-    {/* כתוביות גדולות */}
-    <div className="dgp-titles" aria-hidden="true">
-      <div className={'dgp-card welcome' + (on(T.welcome) ? ' in' : '')}>
-        <i className="rule" /><h1>ברוכות הבאות למסע</h1><p className="dgp-kick">מסע בעקבות דונה גרציה</p><i className="rule" />
+    {/* כותרות: טקסט אחד בכל רגע, באותו סגנון ובאותו מקום */}
+    <div className="dgp-titles" aria-live="polite">
+      <div className={'dgp-card' + (on(T.welcome) ? ' in' : '')}>
+        <i className="rule" /><h2>ברוכות הבאות למסע</h2><p className="dgp-kick">מסע בעקבות דונה גרציה</p><i className="rule" />
       </div>
-      <div className={'dgp-card low' + (on(T.t1510) ? ' in' : '')}><p className="dgp-kick">פורטוגל · המאה ה־16</p><h2>שנת 1510. ליסבון.</h2></div>
-      <div className={'dgp-card low' + (on(T.t2) ? ' in' : '')}><h2 className="lt">ההיסטוריה זוכרת מלכים.</h2></div>
-      <div className={'dgp-card low' + (on(T.t3) ? ' in' : '')}><h2 className="lt">המסע הזה מספר על <strong>מלכה בלי כתר.</strong></h2></div>
+      <div className={'dgp-card' + (on(T.t1510) ? ' in' : '')}><h2>שנת 1510. <strong>ליסבון.</strong></h2><p className="dgp-kick">פורטוגל · המאה ה־16</p></div>
+      <div className={'dgp-card' + (on(T.t2) ? ' in' : '')}><h2>ההיסטוריה זוכרת <strong>מלכים.</strong></h2></div>
+      <div className={'dgp-card' + (on(T.t3) ? ' in' : '')}><h2>המסע הזה מספר על <strong>מלכה בלי כתר.</strong></h2></div>
       {CITIES.map((c, i) => {
         const [a, b] = cityR(i);
-        return <div key={c.v} className={'dgp-card low city-c' + (on([a + 0.4, b - 0.35 + (i === 5 ? 0.2 : 0)]) ? ' in' : '')}>
-          <p className="dgp-kick">0{i + 1} <i>/</i> 06</p><h2>{c.name}</h2><p className="dgp-line">{c.line}</p>
+        return <div key={c.v} className={'dgp-card' + (on([a + 0.4, b - 0.35 + (i === 5 ? 0.2 : 0)]) ? ' in' : '')}>
+          <h2><strong>{c.name}</strong></h2><p className="dgp-kick">{c.line}</p>
         </div>;
       })}
-      <div className={'dgp-card name-c' + (on(T.name) ? ' in' : '')}>
-        <h1>דונה גרציה</h1>
-        <p className={'dgp-sub' + (on(T.sub) ? ' in' : '')}>אישה אחת. מסע שחצה גבולות.</p>
+      <div className={'dgp-card' + (on(T.name) ? ' in' : '')}>
+        <h2><strong>דונה גרציה</strong></h2><p className="dgp-kick">אישה אחת. מסע שחצה גבולות.</p>
       </div>
     </div>
 
-    {/* פסי קולנוע, ובפס התחתון כתובית הקריינות */}
+    {/* פסי קולנוע */}
     <div className="dgp-bar top" aria-hidden="true" /><div className="dgp-bar bot" aria-hidden="true" />
-    {!reduce && <p className={'dgp-subtitle' + (cue ? ' in' : '')} aria-live="polite" key={cue?.id || 'none'}>{cue?.text || ''}</p>}
 
     {hasAudio && !reduce && <button type="button" className={'dgp-sound ' + sound} onClick={toggleMute} aria-pressed={sound === 'on'} aria-label={sound === 'off' ? 'הפעלת קול' : sound === 'on' ? 'השתקה' : 'ביטול השתקה'}>
       <span className="ic" aria-hidden="true">{sound === 'on' ? '🔊' : sound === 'muted' ? '🔇' : '🔊'}</span>{sound === 'off' && <span>הפעלת קול</span>}

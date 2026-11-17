@@ -34,21 +34,16 @@
 
 /* כתוביות */
 .dgp-titles{position:absolute;inset:0;z-index:5;pointer-events:none}
-.dgp-card{position:absolute;left:6vw;right:6vw;text-align:center;opacity:0;filter:blur(8px);transform:translateY(10px);transition:opacity 1.1s ease,filter 1.1s ease,transform 3.2s cubic-bezier(.2,.7,.2,1)}
-.dgp-card.in{opacity:1;filter:blur(0);transform:none;transition:opacity 1.5s ease,filter 1.5s ease,transform 4s cubic-bezier(.2,.7,.2,1)}
-.dgp-card.low{bottom:calc(var(--bar) + clamp(34px,8vh,84px))}
-.dgp-card.mid{top:50%;margin-top:-1.2em}
-.dgp-card h2{margin:0;font-weight:800;font-size:clamp(28px,4.3vw,60px);line-height:1.12;letter-spacing:-.01em;color:var(--cream);text-shadow:0 2px 24px #000c,0 0 2px #0008}
-.dgp-card h2.lt{font-weight:300;font-size:clamp(26px,3.7vw,52px);letter-spacing:.005em}
-.dgp-card h2.lt strong{font-weight:800;color:var(--gold)}
-.dgp-kick{margin:0 0 14px;font-weight:400;font-size:clamp(11px,1.05vw,14px);letter-spacing:.14em;color:var(--gold);text-shadow:0 1px 12px #000}
-.dgp-kick i{font-style:normal;opacity:.5;margin:0 .2em}
-.dgp-line{margin:12px 0 0;font-weight:300;font-size:clamp(16px,1.7vw,23px);letter-spacing:.04em;color:#efe3c8;text-shadow:0 1px 16px #000}
-.city-c h2{font-size:clamp(40px,6vw,86px);font-weight:900;letter-spacing:.02em}
-.name-c{bottom:calc(var(--bar) + clamp(30px,7vh,80px))}
-.name-c h1{margin:0;font-weight:900;font-size:clamp(56px,10vw,150px);line-height:1;letter-spacing:.015em;background:linear-gradient(180deg,#fff4d6 0%,#f0d08a 48%,#c9984a 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 4px 30px #000c)}
-.dgp-sub{margin:18px 0 0;font-weight:300;font-size:clamp(16px,1.9vw,26px);letter-spacing:.05em;color:var(--cream);opacity:0;transform:translateY(6px);transition:opacity 1.4s ease,transform 2.4s ease;text-shadow:0 1px 14px #000}
-.dgp-sub.in{opacity:1;transform:none}
+/* מערכת טיפוגרפיה אחידה לכל הכותרות: שורה אחת דקה בקרם (הדגשה בזהב מודגש), ומתחתיה שורת משנה קטנה בזהב עם ריווח.
+   מיקום אחיד: ממורכז, בשליש התחתון (69%). אותו fade לכולן. */
+.dgp-card{position:absolute;left:6vw;right:6vw;top:69%;text-align:center;opacity:0;filter:blur(8px);transform:translateY(-50%) scale(.985);transition:opacity 1.2s ease,filter 1.2s ease,transform 3.4s cubic-bezier(.2,.7,.2,1)}
+.dgp-card.in{opacity:1;filter:blur(0);transform:translateY(-50%) scale(1);transition:opacity 1.6s ease,filter 1.6s ease,transform 4s cubic-bezier(.2,.7,.2,1)}
+.dgp-card h2{margin:0;font-weight:200;font-size:clamp(32px,5vw,72px);line-height:1.15;letter-spacing:.03em;color:#fff6e2;text-shadow:0 0 40px #ffb45a40,0 2px 26px #000e,0 0 3px #0009}
+.dgp-card h2 strong{font-weight:700;color:var(--gold);letter-spacing:.02em;text-shadow:0 2px 16px #000,0 0 34px #000d,0 0 2px #000}
+.dgp-kick{margin:16px 0 0;font-weight:400;font-size:clamp(12px,1.25vw,16px);letter-spacing:.32em;color:var(--gold);text-shadow:0 1px 14px #000,0 0 2px #000a}
+.dgp-card .rule{display:block;height:1px;width:min(340px,58vw);margin:0 auto 22px;background:linear-gradient(90deg,#0000,var(--gold),#0000);transform:scaleX(0);transition:transform 2.6s cubic-bezier(.2,.7,.2,1) .2s}
+.dgp-card .rule:last-child{margin:22px auto 0}
+.dgp-card.in .rule{transform:scaleX(1)}
 
 /* מפה */
 .dgp-shot.map{background:radial-gradient(90% 80% at 55% 45%,#1d140a 0%,#0a0806 60%,#030303 100%)}
@@ -70,11 +65,11 @@
 .dgp-pin .ring{fill:#f3d48b22;stroke:#f3d48b66;stroke-width:1}
 .dgp-pin .dot{fill:#fff2cc}
 .dgp-pin text{font-family:Heebo,Arial,sans-serif;font-weight:700;font-size:15px;fill:var(--cream);paint-order:stroke;stroke:#0a0806;stroke-width:4px;letter-spacing:.02em}
-.map-k{position:absolute;z-index:2;top:clamp(18px,4vh,40px);left:0;right:0;text-align:center;font-size:clamp(13px,1.3vw,17px);opacity:0;transition:opacity 1.4s ease}
+.map-k{position:absolute;z-index:2;top:clamp(18px,4vh,40px);left:0;right:0;margin:0;text-align:center;opacity:0;transition:opacity 1.4s ease}
 .map-k.in{opacity:1}
 .dgp-go{position:absolute;z-index:2;left:0;right:0;bottom:clamp(22px,6vh,56px);display:flex;justify-content:center;opacity:0;transform:translateY(10px);transition:opacity 1.2s ease,transform 1.6s cubic-bezier(.2,.8,.2,1);pointer-events:none}
 .dgp-go.on{opacity:1;transform:none;pointer-events:auto}
-.dgp-go .cta{width:auto;min-width:250px;color:var(--ink);font-family:Heebo,Arial,sans-serif;font-size:17px;box-shadow:0 0 0 6px #d7ff5314,0 12px 40px #d7ff5333}
+.dgp-go .cta{width:auto;min-width:250px;color:var(--ink);font-family:Heebo,Arial,sans-serif;font-size:17px;font-weight:500;letter-spacing:.06em;box-shadow:0 0 0 6px #d7ff5314,0 12px 40px #d7ff5333}
 
 /* שוט הפתיחה: שולחן המכתבים לאור הנר.
    --fx/--fy = המכתב והחותם (לשם המצלמה נכנסת והאור נפתח), --cx/--cy = להבת הנר */
@@ -100,20 +95,6 @@
 @keyframes dust{from{transform:translate(0,0)}to{transform:translate(-70px,-120px)}}
 .dgp-shade.desk{background:radial-gradient(85% 75% at 50% 55%,#0000 30%,#000c 100%),linear-gradient(#0006,#0000 30%,#0000 60%,#000b)}
 
-/* כותרת הפתיחה */
-.dgp-card.welcome{top:50%;transform:translateY(-50%) scale(.985);filter:blur(10px);letter-spacing:.02em}
-.dgp-card.welcome.in{transform:translateY(-50%) scale(1);filter:blur(0)}
-.dgp-card.welcome h1{margin:0;font-weight:200;font-size:clamp(34px,5.6vw,80px);line-height:1.1;letter-spacing:.03em;color:#fff6e2;text-shadow:0 0 40px #ffb45a55,0 2px 26px #000d}
-.dgp-card.welcome .dgp-kick{margin:16px 0 0;font-size:clamp(12px,1.25vw,16px);letter-spacing:.32em;font-weight:400}
-.dgp-card.welcome .rule{display:block;height:1px;width:min(340px,58vw);margin:0 auto 22px;background:linear-gradient(90deg,#0000,var(--gold),#0000);transform:scaleX(0);transition:transform 2.6s cubic-bezier(.2,.7,.2,1) .2s}
-.dgp-card.welcome .rule:last-child{margin:22px auto 0}
-.dgp-card.welcome.in .rule{transform:scaleX(1)}
-
-/* כתובית הקריינות: שורה עדינה בתוך הפס התחתון */
-.dgp-subtitle{position:absolute;z-index:8;left:6vw;right:6vw;bottom:0;height:var(--bar);margin:0;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:300;font-size:clamp(13px,1.25vw,17px);line-height:1.35;letter-spacing:.03em;color:#e9dcc0;opacity:0;pointer-events:none}
-.dgp-subtitle.in{animation:subIn .6s ease forwards}
-@keyframes subIn{from{opacity:0;transform:translateY(3px)}to{opacity:.82;transform:none}}
-
 /* כפתור קול */
 .dgp-sound{position:absolute;z-index:9;top:calc(var(--bar) / 2 - 18px);right:20px;min-height:36px;display:flex;align-items:center;gap:8px;padding:7px 16px 7px 18px;border-radius:999px;border:1px solid #e2c27e66;background:#0008;color:#f3ead7;font-weight:400;font-size:14px;letter-spacing:.04em;cursor:pointer;backdrop-filter:blur(6px);transition:background .2s,border-color .2s,padding .3s}
 .dgp-sound .ic{font-size:15px;line-height:1}
@@ -135,17 +116,16 @@
   .dgp-img{object-position:47% 50%}
   .dgp-vid.ship{object-position:61% 50%}
   .dgp-card{left:7vw;right:7vw}
-  .dgp-card.mid{top:auto;margin:0;bottom:calc(var(--bar) + 12vh)}
   .dgp-map{width:100%}
   .dgp-pin text{font-size:25px;stroke-width:6px}
   .dgp-pin .dot{r:5}
   .dgp-pin .ring{r:12}
   .dgp-skip{top:calc(var(--bar) / 2 - 18px);left:14px}
   .dgp-sound{right:14px;font-size:13px;padding:6px 13px}
-  .dgp-subtitle{left:5vw;right:5vw;font-size:13px}
-  .dgp-card.welcome h1{font-size:clamp(30px,9vw,44px)}
+  .dgp-card h2{font-size:clamp(28px,8.4vw,40px)}
+  .dgp-kick{letter-spacing:.22em}
 }
-@media (max-width:640px){.dgp-card h2.lt strong{display:block}}
+@media (max-width:640px){.dgp-card h2 strong{display:block}}
 
 /* בלי תנועה: רק הפריים האחרון */
 .dgp.still *,.dgp.still{transition:none!important;animation:none!important}
