@@ -226,7 +226,6 @@ export function Intro({ onDone }: { onDone: () => void }) {
     {/* שוט 6: המפה */}
     <div className={'dgp-shot map' + (on(T.shots.map) || reduce ? ' on' : '') + (run(T.route) || reduce ? ' run' : '')}>
       <div className="dgp-mapwrap">
-        <p className={'dgp-kick map-k' + (run(T.mapKick) || reduce ? ' in' : '')}>מליסבון ועד טבריה</p>
         <svg className="dgp-map" viewBox={vb} preserveAspectRatio="xMidYMid meet" aria-hidden="true">
           <defs><filter id="dgpglow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b" /><feMerge><feMergeNode in="b" /><feMergeNode in="SourceGraphic" /></feMerge></filter></defs>
           <g className="dgp-cam"><g className="dgp-land">{LAND.map((d, i) => <path key={i} d={d} />)}</g>
