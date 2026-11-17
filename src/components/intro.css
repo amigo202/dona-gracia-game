@@ -122,7 +122,7 @@
   .dgp-img.desk-img{object-position:64% 50%}
   .dgp-card{left:7vw;right:7vw}
   .dgp-map{width:100%;top:-6%}
-  .dgp-cam{transform-origin:390px 225px;transform:scale(1.15)}
+  .dgp-cam{transform-origin:388px 225px;transform:scale(1.1)}
   .dgp-shot.map.on .dgp-cam{animation:camP 6s cubic-bezier(.3,0,.2,1) forwards}
   .dgp-pin text{font-size:25px;stroke-width:6px}
   .dgp-pin .dot{r:5}
@@ -142,4 +142,4 @@
 .dgp.still .dgp-route{stroke-dashoffset:0}
 .dgp.still .dgp-cam{transform:none}
 
-@keyframes camP{from{transform:scale(1.15)}to{transform:scale(.97)}}
+@keyframes camP{from{transform:scale(1.1)}to{transform:scale(.86)}}
