@@ -76,25 +76,16 @@
    --fx/--fy = המכתב והחותם (לשם המצלמה נכנסת והאור נפתח), --cx/--cy = להבת הנר */
 .dgp-shot.desk{--fx:60%;--fy:66%;--cx:68%;--cy:34%;background:#050403}
 .dgp-shot.desk.on{transition-duration:2.6s}
-.desk-img{object-position:50% 55%;transform-origin:var(--fx) var(--fy);transform:scale(1.06);filter:brightness(.62) saturate(.92);transition:filter 3.5s ease}
-.dgp-shot.desk.run .desk-img{animation:deskIn 16s cubic-bezier(.33,0,.2,1) forwards}
-.dgp-shot.desk.opened .desk-img{filter:brightness(.9) saturate(1)}
-@keyframes deskIn{0%{transform:scale(1.06)}22%{transform:scale(1.16)}100%{transform:scale(1.32)}}
+.desk-img{object-position:50% 50%}
 /* הבהוב הנר */
-.dgp-candle{position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;background:radial-gradient(28% 34% at var(--cx) var(--cy),#ffb35c55 0%,#ff8a2a22 45%,#0000 75%);animation:flick 3.2s steps(1) infinite,flick2 5.3s ease-in-out infinite alternate}
-@keyframes flick{0%{opacity:.85}13%{opacity:1}21%{opacity:.78}34%{opacity:.95}47%{opacity:.82}61%{opacity:1}72%{opacity:.88}86%{opacity:.97}}
-@keyframes flick2{from{filter:blur(0)}to{filter:blur(6px)}}
 /* "המכתב נפתח": אור חם מתפשט מהחותם, נשימה אחת ונעלם לתוך הכותרת */
-.dgp-bloom{position:absolute;inset:0;pointer-events:none;mix-blend-mode:screen;opacity:0;background:radial-gradient(18% 22% at var(--fx) var(--fy),#ffe2a8cc 0%,#ffbf6a55 38%,#0000 72%);transform-origin:var(--fx) var(--fy);transform:scale(.4)}
-.dgp-shot.desk.opened .dgp-bloom{animation:bloom 5.2s cubic-bezier(.3,.1,.2,1) forwards}
-@keyframes bloom{0%{opacity:0;transform:scale(.4)}35%{opacity:.95;transform:scale(1.5)}100%{opacity:.18;transform:scale(3.2)}}
 /* אבק באוויר */
 .dgp-dust,.dgp-dust:after{position:absolute;inset:-20%;pointer-events:none;mix-blend-mode:screen;background-image:radial-gradient(1.3px 1.3px at 12% 22%,#ffe9c0 50%,#0000),radial-gradient(1px 1px at 33% 64%,#ffe9c0 50%,#0000),radial-gradient(1.5px 1.5px at 58% 31%,#ffe9c0 50%,#0000),radial-gradient(1px 1px at 72% 78%,#ffe9c0 50%,#0000),radial-gradient(1.1px 1.1px at 87% 45%,#ffe9c0 50%,#0000);background-size:613px 547px}
 .dgp-dust{opacity:0;transition:opacity 3s ease;animation:dust 38s linear infinite;filter:blur(.4px)}
 .dgp-dust:after{content:'';inset:0;background-size:389px 467px;opacity:.6;transform:rotate(17deg);filter:blur(1px)}
-.dgp-shot.desk.run .dgp-dust{opacity:.32}
+.dgp-shot.desk.run .dgp-dust{opacity:.18}
 @keyframes dust{from{transform:translate(0,0)}to{transform:translate(-70px,-120px)}}
-.dgp-shade.desk{background:radial-gradient(85% 75% at 50% 55%,#0000 30%,#000c 100%),linear-gradient(#0006,#0000 30%,#0000 60%,#000b)}
+.dgp-shade.desk{background:radial-gradient(90% 80% at 50% 50%,#0000 45%,#0009 100%),linear-gradient(#0000 55%,#000a)}
 
 /* כפתור קול */
 .dgp-sound{position:absolute;z-index:9;top:calc(var(--bar) / 2 - 18px);right:20px;min-height:36px;display:flex;align-items:center;gap:8px;padding:7px 16px 7px 18px;border-radius:999px;border:1px solid #e2c27e66;background:#0008;color:#f3ead7;font-weight:400;font-size:14px;letter-spacing:.04em;cursor:pointer;backdrop-filter:blur(6px);transition:background .2s,border-color .2s,padding .3s}
@@ -119,7 +110,8 @@
   .dgp-skip,.dgp-sound,.dgp:not(.rolling) .dgp-skip,.dgp:not(.rolling) .dgp-sound{top:max(12px,env(safe-area-inset-top))}
   .dgp-img{object-position:47% 50%}
   .dgp-vid.ship{object-position:61% 50%}
-  .dgp-img.desk-img{object-position:64% 50%}
+  .dgp-img.desk-img{object-position:88% 50%}
+  .dgp-shot.desk.run .desk-img{animation:deskPan 18s linear forwards}
   .dgp-card{left:7vw;right:7vw}
   .dgp-map{width:100%;top:-6%}
   .dgp-cam{transform-origin:388px 225px;transform:scale(1.1)}
@@ -143,3 +135,4 @@
 .dgp.still .dgp-cam{transform:none}
 
 @keyframes camP{from{transform:scale(1.1)}to{transform:scale(.86)}}
+@keyframes deskPan{0%,19%{object-position:88% 50%}44%{object-position:46% 50%}100%{object-position:44% 50%}}

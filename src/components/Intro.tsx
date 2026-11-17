@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import deskImg from './intro-desk.webp';
 import backImg from './intro-back.webp';
 import CFG from './intro-cues.json';
 import { LAND, GEO, BENDS } from './introMap';
@@ -88,6 +87,7 @@ export function Intro({ onDone }: { onDone: () => void }) {
 
   // התחלה אוטומטית: ברגע שתמונת השולחן נטענה (או אחרי 1.5 שניות לכל המאוחר)
   const go0 = useRef(false);
+  const deskVid = useRef<HTMLVideoElement | null>(null);
   const begin = () => {
     if (go0.current || reduce) return; go0.current = true; setRolling(true);
     t0.current = performance.now();
@@ -99,7 +99,17 @@ export function Intro({ onDone }: { onDone: () => void }) {
     };
     raf.current = requestAnimationFrame(tick);
     if (hasAudio) enableSound(true); // ניסיון ניגון אוטומטי
+    const dv = deskVid.current; if (dv) { try { dv.currentTime = 0; } catch { /* עוד לא נטען */ } dv.play().catch(() => { /* הפוסטר יישאר */ }); }
   };
+  // סנכרון סרטון השולחן לציר הזמן (תיקון סטייה), ועצירה אחרי שהשוט נעלם
+  useEffect(() => {
+    const dv = deskVid.current; if (!dv || !rolling || reduce) return;
+    const end = T.shots.desk[1];
+    if (t < end) {
+      if (dv.readyState >= 2 && t < (dv.duration || 99) - 0.1 && Math.abs(dv.currentTime - t) > 0.25) { try { dv.currentTime = t; } catch { /* */ } }
+      if (dv.paused && t < (dv.duration || 99) - 0.1) dv.play().catch(() => { /* */ });
+    } else if (t > end + 1 && !dv.paused) dv.pause();
+  }, [t]); // eslint-disable-line
   useEffect(() => { if (reduce) return; const id = window.setTimeout(begin, 1500); return () => clearTimeout(id); }, []); // eslint-disable-line
   useEffect(() => () => { cancelAnimationFrame(raf.current); music.current?.pause(); narr.current?.pause(); }, []);
 
@@ -197,9 +207,11 @@ export function Intro({ onDone }: { onDone: () => void }) {
   return <div className={'dgp' + (rolling ? ' rolling' : '') + (leaving ? ' out' : '') + (reduce ? ' still' : '')} dir="rtl" lang="he" role="dialog" aria-modal="true" aria-label="פתיחה: מסע בעקבות דונה גרציה" data-t={t}>
     {/* שוט 1: שולחן המכתבים לאור הנר. המכתב "נפתח" לבד: אור חם מתפשט מהחותם והמצלמה נכנסת פנימה */}
     <div className={'dgp-shot desk' + (reduce || on(T.shots.desk) ? ' on' : '') + (run(0) ? ' run' : '') + (opened ? ' opened' : '')}>
-      <img className="dgp-img desk-img" src={deskImg} alt="" onLoad={begin} />
-      <div className="dgp-candle" aria-hidden="true" />
-      <div className="dgp-bloom" aria-hidden="true" />
+      {/* סרטון השולחן: מקודד מראש באורך השוט (≈18.3 שניות, ההאטה כבר בפנים), מתנגן 1:1 עם ציר הזמן */}
+      <video ref={deskVid} className="dgp-img desk-img" poster={`${AUDIO_BASE}desk.jpg`} muted playsInline preload="auto" onLoadedData={begin}>
+        <source src={`${AUDIO_BASE}desk.webm`} type="video/webm" />
+        <source src={`${AUDIO_BASE}desk.mp4`} type="video/mp4" />
+      </video>
       <div className="dgp-dust" aria-hidden="true" />
       <div className="dgp-shade desk" />
     </div>
