@@ -5,9 +5,9 @@
 
 | קובץ | שם הטראק | יוצר | מקור | רישיון |
 |---|---|---|---|---|
-| option-1.mp3 (מחובר כרגע לתצוגה) | Epic Hollywood Trailer (short) | Good_B_Music | https://pixabay.com/music/main-title-epic-hollywood-trailer-short-199675/ | Pixabay Content License |
+| option-1.mp3 | Epic Hollywood Trailer (short) | Good_B_Music | https://pixabay.com/music/main-title-epic-hollywood-trailer-short-199675/ | Pixabay Content License |
 | option-2.mp3 | Emotional Epic | Orvien | https://pixabay.com/music/orchestral-emotional-epic-608417/ | Pixabay Content License |
-| option-3.mp3 | Rebel Moon (Inspiring Emotional Epic Cinematic Trailer Short 1) | AudioAtlant | https://pixabay.com/music/orchestral-rebel-moon-inspiring-emotional-epic-cinematic-trailer-short-1-628477/ | Pixabay Content License |
+| option-3.mp3 (נבחר, מחובר לתצוגה) | Rebel Moon (Inspiring Emotional Epic Cinematic Trailer Short 1) | AudioAtlant | https://pixabay.com/music/orchestral-rebel-moon-inspiring-emotional-epic-cinematic-trailer-short-1-628477/ | Pixabay Content License |
 
 ## עריכה
 - option-1: 3.6 שניות שקט בהתחלה; הוכפלו 2 תיבות (9.6–13.6s במקור, 120bpm, חיתוך על הפעמה) כדי שהדרופ ייפול על השם. מכה ראשונה ~5.2s (אחרי שהמכתב נפתח), "נשימה" ~43.5 ודרופ גדול ב-45.2, fade-out 52.2–58.2.
