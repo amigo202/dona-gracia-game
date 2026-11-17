@@ -17,7 +17,7 @@ const CITIES = [
   { name: 'איסטנבול', line: 'נותנת לעוצמה כיוון', v: 'istanbul' },
   { name: 'טבריה', line: 'חזון שחוצה מרחק', v: 'tiberias' },
 ];
-type Cue = { id: string; shot: string; start: number; end: number; text: string };
+type Cue = { id: string; shot: string; start: number; end: number; text: string; title?: string; kicker?: string };
 type R = [number, number];
 const SEG = 0.72; // משך כל קטע במסלול המפה
 const AUDIO_BASE = './intro/'; // יחסית ל־index.html של הבנייה (גם בתצוגה המקדימה בתת־תיקייה)
@@ -50,6 +50,11 @@ export function shouldShowIntro(route: string) {
   try { return !sessionStorage.getItem(KEY); } catch { return false; }
 }
 
+/** "{מילה}" בכותרת = הדגשה בזהב */
+function rich(t: string) {
+  return t.split(/(\{[^}]+\})/).filter(Boolean).map((p, i) => p.startsWith('{') ? <strong key={i}>{p.slice(1, -1)}</strong> : <React.Fragment key={i}>{p}</React.Fragment>);
+}
+
 function curve(i: number) {
   const p = GEO[i], q = GEO[i + 1], mx = (p[0] + q[0]) / 2, my = (p[1] + q[1]) / 2, dx = q[0] - p[0], dy = q[1] - p[1], b = BENDS[i];
   return `M${p[0]} ${p[1]} Q${mx - dy * b} ${my + dx * b} ${q[0]} ${q[1]}`;
@@ -57,6 +62,7 @@ function curve(i: number) {
 
 export function Intro({ onDone }: { onDone: () => void }) {
   const T = useMemo(() => timeline(), []);
+  const cueList = CFG.cues as Cue[];
   const A = CFG.audio as { music: string | null; narration: string | null; musicNameAt: number; musicVolume: number; musicUnderNarration: number; narrationVolume: number; narrationAt?: number };
   const hasAudio = !!(A.music || A.narration);
   const reduce = useRef(typeof matchMedia !== 'undefined' && matchMedia('(prefers-reduced-motion: reduce)').matches).current;
@@ -117,7 +123,6 @@ export function Intro({ onDone }: { onDone: () => void }) {
   // אם נחסם, הנגיעה הראשונה בכל מקום במסך מפעילה את הקול, מסונכרן למיקום הנוכחי בציר הזמן.
   const soundRef = useRef<'off' | 'on' | 'muted'>('off');
   const setS = (v: 'off' | 'on' | 'muted') => { soundRef.current = v; setSound(v); };
-  const cueList = CFG.cues as Cue[];
   const speaking = (now: number) => !!A.narration && cueList.some(c => now >= c.start - 0.25 && now < c.end + 0.35);
   const musicTarget = (now: number) => (speaking(now) ? A.musicUnderNarration : A.musicVolume);
   const syncAudio = () => {
@@ -185,7 +190,7 @@ export function Intro({ onDone }: { onDone: () => void }) {
 
   const on = (r: R) => t >= r[0] && t < r[1];
   const run = (a: number) => rolling && t >= a;
-  const vb = narrow ? '28 34 724 382' : '0 0 800 450';
+  const vb = narrow ? '52 50 676 352' : '0 0 800 450';
   const goOn = t >= T.go;
   const opened = run(0.5);
 
@@ -245,23 +250,18 @@ export function Intro({ onDone }: { onDone: () => void }) {
 
     <div className="dgp-grain" aria-hidden="true" />
 
-    {/* כותרות: טקסט אחד בכל רגע, באותו סגנון ובאותו מקום */}
+    {/* כותרות: כל משפט קריינות מופיע ככותרת אחת, מסונכרן לקול. טקסט אחד בכל רגע, באותו סגנון ובאותו מקום */}
     <div className="dgp-titles" aria-live="polite">
       <div className={'dgp-card' + (on(T.welcome) ? ' in' : '')}>
         <i className="rule" /><h2>ברוכות הבאות למסע</h2><p className="dgp-kick">מסע בעקבות דונה גרציה</p><i className="rule" />
       </div>
-      <div className={'dgp-card' + (on(T.t1510) ? ' in' : '')}><h2>שנת 1510. <strong>ליסבון.</strong></h2><p className="dgp-kick">פורטוגל · המאה ה־16</p></div>
-      <div className={'dgp-card' + (on(T.t2) ? ' in' : '')}><h2>ההיסטוריה זוכרת <strong>מלכים.</strong></h2></div>
-      <div className={'dgp-card' + (on(T.t3) ? ' in' : '')}><h2>המסע הזה מספר על <strong>מלכה בלי כתר.</strong></h2></div>
-      {CITIES.map((c, i) => {
-        const [a, b] = cityR(i);
-        return <div key={c.v} className={'dgp-card' + (on([a + 0.4, b - 0.35 + (i === 5 ? 0.2 : 0)]) ? ' in' : '')}>
-          <h2><strong>{c.name}</strong></h2><p className="dgp-kick">{c.line}</p>
+      {cueList.map((c, i) => {
+        const next = cueList[i + 1];
+        const until = Math.min(c.end + 0.7, next ? next.start - 0.35 : c.end + 0.7, c.id === 'n14' ? T.go - 0.2 : 999);
+        return <div key={c.id} className={'dgp-card' + (c.id === 'n12' ? ' name' : '') + (on([c.start - 0.2, until]) ? ' in' : '')}>
+          <h2>{rich(c.title || c.text)}</h2>{c.kicker && <p className="dgp-kick">{c.kicker}</p>}
         </div>;
       })}
-      <div className={'dgp-card' + (on(T.name) ? ' in' : '')}>
-        <h2><strong>דונה גרציה</strong></h2><p className="dgp-kick">אישה אחת. מסע שחצה גבולות.</p>
-      </div>
     </div>
 
     {/* פסי קולנוע */}
