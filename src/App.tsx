@@ -13,13 +13,14 @@ import { MiniGameView } from './game/MiniGames';
 import { JourneyMap, PinState } from './game/JourneyMap';
 import { StudioPanel, StudioPage, ResearchCards, Narrator, StudentVideo, Credits } from './game/Studio';
 import { loadBaked, loadRecIndex } from './game/studio';
-import { useGame, setGame, resetGame, SLUGS, isUnlocked, totalScore, doneCount, nextIndex, stars, useHashRoute, useSpeech } from './game/store';
+import { useGame, setGame, resetGame, SLUGS, isUnlocked, totalScore, doneCount, nextIndex, stars, useHashRoute, useSpeech, DATA } from './game/store';
+import { Intro, shouldShowIntro } from './components/Intro';
 
 const photos = [lisbon, lisbon, antwerp, venice, ferrara, istanbul, tiberias];
 const SOURCE = 'https://tarbutil.cet.ac.il/lexicon/%D7%93%D7%95%D7%A0%D7%94-%D7%92%D7%A8%D7%A6%D7%99%D7%94/';
 const imageSources = ['https://commons.wikimedia.org/wiki/File:Torre_de_Bel%C3%A9m_lighthouse.jpg', 'https://commons.wikimedia.org/wiki/File:Torre_de_Bel%C3%A9m_lighthouse.jpg', 'https://commons.wikimedia.org/wiki/File:City_of_Antwerp%2C_1572.jpg', "https://commons.wikimedia.org/wiki/File:Canaletto_-_The_Grand_Canal_in_Venice_with_the_Palazzo_Corner_Ca%27Grande_-_Google_Art_Project.jpg", 'https://commons.wikimedia.org/wiki/File:Castello_Estense_19Jh.jpg', "https://commons.wikimedia.org/wiki/File:1572_bird%27s_eye_view_map_of_Constantinople_-_Byzantium_Nunc_Constantinopolis.jpg", 'https://www.clevelandart.org/art/1927.91'];
 const MAX_TOTAL = 600;
-const vid = (n: string) => `./videos/${n}.mp4`; const poster = (n: string) => `./videos/${n}.jpg`;
+const vid = (n: string) => `${DATA}videos/${n}.mp4`; const poster = (n: string) => `${DATA}videos/${n}.jpg`;
 const AI_LABEL = 'הדמיית AI — לא תיעוד היסטורי';
 function StationVideo({ name, posterName, alt }: { name: string; posterName: string; alt: string }) {
   return <figure className="st-video">
@@ -265,6 +266,7 @@ export function App() {
   const [route, go] = useHashRoute(); const g = useGame();
   const [toast, setToast] = useState(''); const flash = (t: string) => { setToast(t); window.clearTimeout((flash as any)._t); (flash as any)._t = window.setTimeout(() => setToast(''), 2800); };
   const idx = SLUGS.indexOf(route);
+  const [intro, setIntro] = useState(() => shouldShowIntro(route));
   useEffect(() => { loadBaked(); loadRecIndex(SLUGS); }, []);
   useEffect(() => { if (idx >= 0 && !isUnlocked(g, idx)) { go('map'); flash('התחנה הזו עוד נעולה. משלימות קודם את התחנות שלפניה.'); } }, [idx]); // eslint-disable-line
   useEffect(() => { window.scrollTo(0, 0); window.speechSynthesis?.cancel?.(); const t = route === '' ? 'מסע בעקבות דונה גרציה' : idx >= 0 ? `${screens[idx + 1].city} · מסע בעקבות דונה גרציה` : route === 'certificate' ? 'תעודת מסע · דונה גרציה' : route === 'studio' ? 'סטודיו הכיתה · דונה גרציה' : 'מפת המסע · דונה גרציה'; document.title = t; }, [route]);
@@ -281,5 +283,6 @@ export function App() {
     <div id="main-content" tabIndex={-1} className="g-main" key={route}>{view}</div>
     <Footer go={go} />
     <div className={'toast' + (toast ? ' show' : '')} role="status" aria-live="polite">{toast}</div>
+    {intro && <Intro onDone={() => { setIntro(false); if (route !== '') go(''); window.scrollTo(0, 0); }} />}
   </div>;
 }

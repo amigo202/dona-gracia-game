@@ -68,3 +68,6 @@ export function shuffle<T>(a: T[], seed = 7): T[] {
   for (let i = r.length - 1; i > 0; i--) { x = (x * 9301 + 49297) % 233280; const j = Math.floor((x / 233280) * (i + 1)); [r[i], r[j]] = [r[j], r[i]]; }
   return r;
 }
+
+/** תיקיית הקבצים הסטטיים (סרטונים, הקלטות, contributions.json). בגרסת תצוגה מקדימה בתת־תיקייה: VITE_DATA_BASE=../ */
+export const DATA: string = (import.meta.env.VITE_DATA_BASE as string | undefined) || './';

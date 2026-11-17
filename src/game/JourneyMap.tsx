@@ -5,7 +5,7 @@ import { SLUGS } from './store';
 // נקודות אמת (קואורדינטות המפה 800×450) ומיקומי התוויות, מתוך הגרסה המאושרת
 export const truePts: [number, number][] = [[69.44, 281.73], [263.07, 65.42], [375.94, 165.45], [365.97, 175.86], [613.98, 242.17], [707.59, 384.3]];
 export const labelPts: [number, number][] = [[69, 282], [263, 65], [411, 131], [350, 205], [614, 242], [708, 384]];
-function seg(a: [number, number], b: [number, number], bend = 0.18) {
+export function seg(a: [number, number], b: [number, number], bend = 0.18) {
   const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2, dx = b[0] - a[0], dy = b[1] - a[1];
   return `M${a[0]},${a[1]} Q${mx - dy * bend},${my + dx * bend} ${b[0]},${b[1]}`;
 }

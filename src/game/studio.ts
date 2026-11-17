@@ -2,6 +2,7 @@
 // מקומי: localStorage (כרטיסים) ו־IndexedDB (הקלטות) — נשמר רק במכשיר שבו נוצר, עד ייצוא.
 // אפוי בגרסה הציבורית: public/contributions.json, public/audio/<תחנה>.(m4a|mp3|webm), public/student-video/<תחנה>.mp4
 import { useEffect, useState } from 'react';
+import { DATA } from './store';
 
 export type Contribution = { id: string; station: string; names: string; fact: string; source: string; image?: string; createdAt: string; baked?: boolean };
 export type RecMeta = { station: string; mime: string; names: string; kind: 'script' | 'letter'; createdAt: string; duration?: number };
@@ -43,7 +44,7 @@ export function creditNames(): string[] {
 /* קבצים אפויים */
 let probe: Record<string, string | null> = {};
 export async function loadBaked() {
-  try { const r = await fetch('./contributions.json', { cache: 'no-cache' }); if (r.ok) baked = await r.json(); } catch { /* אין קובץ */ }
+  try { const r = await fetch(DATA + 'contributions.json', { cache: 'no-cache' }); if (r.ok) baked = await r.json(); } catch { /* אין קובץ */ }
   bakedLoaded = true; emit();
 }
 async function exists(url: string) { try { const r = await fetch(url, { method: 'HEAD', cache: 'no-cache' }); return r.ok && !/text\/html/.test(r.headers.get('content-type') || ''); } catch { return false; } }
@@ -53,9 +54,9 @@ export async function bakedMedia(kind: 'audio' | 'video', station: string): Prom
   if (!bakedLoaded) await loadBaked();
   const m = baked.media?.[kind];
   let found: string | null = null;
-  if (m) found = m[station] ? './' + m[station].replace(/^\.?\//, '') : null;
+  if (m) found = m[station] ? DATA + m[station].replace(/^\.?\//, '') : null;
   else {
-    const cands = kind === 'audio' ? ['m4a', 'mp3', 'webm'].map(e => `./audio/${station}.${e}`) : [`./student-video/${station}.mp4`];
+    const cands = kind === 'audio' ? ['m4a', 'mp3', 'webm'].map(e => `${DATA}audio/${station}.${e}`) : [`${DATA}student-video/${station}.mp4`];
     for (const c of cands) if (await exists(c)) { found = c; break; }
   }
   probe[k] = found; return found;

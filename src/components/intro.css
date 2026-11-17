@@ -1,0 +1,51 @@
+/* פתיחה: אותם צבעים, גופן ורכיבי מפה של הלומדה */
+.dgi{position:fixed;inset:0;z-index:200;background:var(--sea);color:var(--ink);display:flex;align-items:center;justify-content:center;padding:64px 32px 40px;overflow:hidden;animation:dgiIn .6s ease-out both;font-family:Heebo,Arial,sans-serif}
+.dgi.out{animation:dgiOut .38s ease-in forwards}
+@keyframes dgiIn{from{opacity:0}to{opacity:1}}
+@keyframes dgiOut{to{opacity:0;transform:scale(1.015)}}
+.dgi-skip{position:absolute;top:18px;left:18px;z-index:5;background:#fffefaee;border:1px solid #fff;color:var(--ink);border-radius:999px;padding:8px 18px;font-size:14px;font-weight:700;box-shadow:0 5px 20px #182a3714;min-height:40px}
+.dgi-skip:hover{background:#fff}
+.dgi.dim .dgi-skip{background:#ffffff14;border-color:#ffffff30;color:#fff;box-shadow:none}
+.dgi-stage{width:min(960px,100%,calc((100vh - 250px) * 16 / 9));display:flex;flex-direction:column;align-items:center;gap:22px;transition:opacity .9s,filter .9s,transform .9s}
+.dgi-top{animation:dgiUp .7s .35s cubic-bezier(.2,.8,.2,1) both}
+.dgi-top .map-title{text-align:center;padding:12px 22px}
+.dgi-top .map-title strong{font-size:22px;font-weight:800;letter-spacing:-.3px}
+@keyframes dgiUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.dgi-map{width:100%;animation:dgiMap 1.2s cubic-bezier(.2,.8,.2,1) both}
+@keyframes dgiMap{from{opacity:0;transform:scale(.985)}to{opacity:1;transform:none}}
+.dgi .map-pin{pointer-events:none;cursor:default}
+.dgi-pin.dgi-now b{background:var(--lime);color:var(--ink);box-shadow:0 0 0 9px #d7ff5340;animation:pulse 1.8s ease-in-out infinite}
+.dgi-base{transition:opacity .4s}
+.dgi-draw{stroke-dasharray:100;stroke-dashoffset:100;animation:draw .85s .1s cubic-bezier(.6,0,.2,1) forwards}
+.dgi-mask{fill:none;stroke:#fff;stroke-width:8;stroke-linecap:round}
+.dgi-mask.draw{stroke-dasharray:100;stroke-dashoffset:100;animation:draw .85s .1s cubic-bezier(.6,0,.2,1) forwards}
+.dgi-dot{animation:dgiIn .3s both}
+.dgi-cap{min-height:56px;display:flex;align-items:center;justify-content:center}
+.dgi-line{display:flex;align-items:center;gap:12px;background:#fffefaee;border:1px solid #fff;border-radius:16px;padding:11px 20px 11px 14px;box-shadow:0 5px 20px #182a3714;font-size:22px;font-weight:800;letter-spacing:-.3px;animation:dgiUp .45s cubic-bezier(.2,.8,.2,1) both}
+.dgi-line b{width:32px;height:32px;border-radius:50%;background:var(--violet);color:#fff;display:grid;place-items:center;font-size:15px;flex:none}
+.dgi-veil{position:absolute;inset:0;background:var(--ink);opacity:0;pointer-events:none;transition:opacity 1s ease}
+.dgi.dim .dgi-veil{opacity:.72}
+.dgi.dim .dgi-stage{filter:saturate(.6) blur(1.5px);transform:scale(.97)}
+.dgi-cap,.dgi-top .map-title{transition:opacity .6s}
+.dgi.dim .dgi-cap,.dgi.dim .dgi-top .map-title{opacity:0}
+.dgi-card{position:absolute;z-index:3;width:min(520px,calc(100% - 32px));padding:34px 36px 30px;text-align:center;animation:dgiCard .9s cubic-bezier(.2,.8,.2,1) both}
+@keyframes dgiCard{from{opacity:0;transform:translateY(18px) scale(.98)}to{opacity:1;transform:none}}
+.dgi-card h1{font-size:46px;line-height:1.14;font-weight:900;letter-spacing:-1.4px;color:#fff;margin:0}
+.dgi-sub{color:var(--lime);font-size:21px;font-weight:700;margin:16px 0 0;animation:dgiUp .7s .9s cubic-bezier(.2,.8,.2,1) both}
+.dgi-go{max-height:0;opacity:0;overflow:hidden;transition:max-height .5s,opacity .5s,margin .5s;margin-top:0;padding:0 2px}
+.dgi-go.on{overflow:visible;max-height:90px;opacity:1;margin-top:24px;padding-bottom:6px}
+.dgi-go .cta{max-width:340px;margin:0 auto}
+.dgi.still *{animation:none!important;transition:none!important}
+@media(max-width:700px){
+ .dgi{padding:72px 10px 32px}
+ .dgi-stage{width:100%;gap:20px}
+ .dgi-skip{top:14px;left:14px;font-size:13px;padding:7px 15px}
+ .dgi-top .map-title strong{font-size:19px}
+ .dgi-line{font-size:18px;padding:10px 16px 10px 12px;gap:10px}
+ .dgi-line b{width:28px;height:28px;font-size:13px}
+ .dgi-card{padding:28px 22px 24px}
+ .dgi-card h1{font-size:34px;letter-spacing:-1px}
+ .dgi-sub{font-size:18px;margin-top:12px}
+ .dgi-go .cta{max-width:none}
+}
+@media(max-height:560px) and (min-width:701px){.dgi{padding-top:56px}.dgi-stage{gap:12px}}
