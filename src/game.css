@@ -23,6 +23,8 @@ h1,h2,h3,h4,h5,p{margin:0}
 .hud-pill b{font-size:17px;color:var(--lime);font-variant-numeric:tabular-nums}
 .hud-pill small{font-size:11px;color:#a8b2c5}
 .edition{background:var(--lime);border-radius:30px;color:var(--ink);font-size:12px;padding:7px 14px;font-weight:700;white-space:nowrap}
+.replay-btn{grid-row:1/3;grid-column:2;justify-self:end;border:1px solid #ffffff2e;background:#ffffff10;color:#fff;border-radius:30px;font-size:12px;padding:7px 12px;font-weight:700;white-space:nowrap;display:inline-flex;gap:6px;align-items:center;font-family:inherit;transition:background .15s,transform .15s}
+.replay-btn:hover{background:#ffffff1c;transform:translateY(-1px)}
 /* footer */
 .g-footer{background:var(--ink);color:#b0bbcf;display:flex;gap:14px 22px;flex-wrap:wrap;justify-content:space-between;align-items:center;padding:14px 32px;font-size:11px;line-height:1.6}
 .g-footer b{color:var(--lime);font-weight:400}
@@ -386,9 +388,11 @@ h1,h2,h3,h4,h5,p{margin:0}
 @media(max-width:700px){
  .g-header{padding:10px 16px;grid-template-columns:1fr auto;column-gap:10px}
  .brand{font-size:17px;white-space:nowrap}
- .sub{font-size:11px}
+ .sub{font-size:11px;padding-inline-end:40px}
  .hud{grid-column:2;gap:6px}
  .edition{display:none}
+ .replay-btn{grid-column:1;grid-row:2;justify-self:end;align-self:center;width:32px;height:32px;min-width:32px;padding:0;justify-content:center;font-size:15px;gap:0}
+ .replay-btn .rb-txt{display:none}
  .hud-pill{padding:5px 10px}.hud-pill b{font-size:15px}
  .hud-pill.badges small{font-size:10px}
  .map-pin{min-width:44px;min-height:44px;font-size:10px;transform:translate(-50%,-15px)}

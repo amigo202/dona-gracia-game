@@ -43,11 +43,12 @@ const Ext = ({ href, children, className }: React.PropsWithChildren<{ href: stri
 
 function pinStates(g: ReturnType<typeof useGame>): PinState[] { return SLUGS.map((k, i) => g.stations[k]?.done ? 'done' : isUnlocked(g, i) ? 'open' : 'locked'); }
 
-function Header({ go }: { go: (r: string) => void }) {
+function Header({ go, onReplay }: { go: (r: string) => void; onReplay: () => void }) {
   const g = useGame(); const score = totalScore(g); const done = doneCount(g);
   return <header className="g-header">
     <a className="brand" href="#/" onClick={e => { e.preventDefault(); go(''); }}><i /><span>מסע בעקבות דונה גרציה</span></a>
     <div className="sub">זהות · מנהיגות · חזון</div>
+    <button type="button" className="replay-btn" onClick={onReplay} aria-label="סרטון פתיחה" title="סרטון פתיחה"><span aria-hidden="true">🎬</span><span className="rb-txt">סרטון פתיחה</span></button>
     <div className="hud" aria-label="ההתקדמות שלך">
       <span className="hud-pill" title="נקודות"><b>{score}</b><small>נק׳</small></span>
       <span className="hud-pill badges" title="תגים"><b dir="ltr">{done}/6</b><small>תגים</small></span>
@@ -279,10 +280,10 @@ export function App() {
   else view = <Opening go={go} />;
   return <div className="game" dir="rtl" lang="he">
     <a className="skip" href="#main-content" onClick={e => { e.preventDefault(); document.getElementById('main-content')?.focus(); }}>דילוג לתוכן</a>
-    <Header go={go} />
+    <Header go={go} onReplay={() => setIntro(true)} />
     <div id="main-content" tabIndex={-1} className="g-main" key={route}>{view}</div>
     <Footer go={go} />
     <div className={'toast' + (toast ? ' show' : '')} role="status" aria-live="polite">{toast}</div>
-    {intro && <Intro onDone={() => { setIntro(false); if (route !== '') go(''); window.scrollTo(0, 0); }} />}
+    {intro && <Intro onDone={() => { setIntro(false); window.scrollTo(0, 0); }} />}
   </div>;
 }
