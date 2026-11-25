@@ -164,8 +164,7 @@ export async function askDona(
         body: JSON.stringify({
           message: question,
           station: stationSlug || null,
-          systemPrompt: SYSTEM_PROMPT,
-          history: history.slice(-8).map(m => ({
+          history: history.slice(-6).map(m => ({
             role: m.role === 'dona' ? 'assistant' : 'user',
             content: m.text,
           })),
