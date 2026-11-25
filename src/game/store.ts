@@ -21,7 +21,7 @@ export function useGame(): GameState {
   return state;
 }
 export const SLUGS = ['lisbon', 'antwerp', 'venice', 'ferrara', 'istanbul', 'tiberias'];
-export function isUnlocked(s: GameState, i: number) { return i === 0 || !!s.stations[SLUGS[i - 1]]?.done; }
+export function isUnlocked(_s: GameState, _i: number) { return true; }
 export function totalScore(s: GameState) { return SLUGS.reduce((a, k) => a + (s.stations[k]?.score || 0), 0); }
 export function doneCount(s: GameState) { return SLUGS.filter(k => s.stations[k]?.done).length; }
 export function nextIndex(s: GameState) { const i = SLUGS.findIndex(k => !s.stations[k]?.done); return i; }

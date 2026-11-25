@@ -19,7 +19,7 @@ const CITIES = [
 type Cue = { id: string; shot: string; start: number; end: number; text: string; title?: string; kicker?: string };
 type R = [number, number];
 const SEG = 0.72; // משך כל קטע במסלול המפה
-const AUDIO_BASE = './intro/'; // יחסית ל־index.html של הבנייה (גם בתצוגה המקדימה בתת־תיקייה)
+const AUDIO_BASE = `${DATA}intro/`; // יחסית ל־index.html של הבנייה (גם בתצוגה המקדימה בתת־תיקייה)
 
 /** גוזר את כל ציר הזמן מטבלת הקריינות */
 export function timeline(cues: Cue[] = CFG.cues as Cue[]) {
