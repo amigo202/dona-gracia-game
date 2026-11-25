@@ -13,7 +13,7 @@ export type StationDetail = {
 };
 
 /**
- * פירוט האירועים בכל תחנה — מבוסס על מחקר תלמידות אולפנית טבריה, לאחר בדיקה ואימות היסטורי.
+ * פירוט האירועים בכל תחנה — מבוסס על מחקר תלמידות אולפנית אורט טבריה, לאחר בדיקה ואימות היסטורי.
  */
 export const stationDetails: Record<string, StationDetail> = {
   lisbon: {
@@ -36,7 +36,7 @@ export const stationDetails: Record<string, StationDetail> = {
     ],
     didYouKnow:
       'ב־23 במאי 1536 הורה האפיפיור להקים אינקוויזיציה בפורטוגל, בדומה לזו שבספרד. מעצר של בני המשפחה היה עלול להוביל להחרמת כל הונם.',
-    researchers: 'מחקר תלמידות אולפנית טבריה: טוהר, הודיה וטליה',
+    researchers: 'מחקר תלמידות אולפנית אורט טבריה: טוהר, הודיה וטליה',
   },
 
   antwerp: {
@@ -59,7 +59,7 @@ export const stationDetails: Record<string, StationDetail> = {
     ],
     didYouKnow:
       'אחיינה ז׳ואאו מיקש, לימים דון יוסף נשיא, ניהל משא ומתן ממושך עם השלטונות והצליח להשיב חלק גדול מהנכסים שעוקלו, לפני שהצטרף גם הוא למשפחה באיטליה.',
-    researchers: 'מחקר תלמידות אולפנית טבריה: אורי ונויה',
+    researchers: 'מחקר תלמידות אולפנית אורט טבריה: אורי ונויה',
   },
 
   venice: {
@@ -82,7 +82,7 @@ export const stationDetails: Record<string, StationDetail> = {
     ],
     didYouKnow:
       'המקורות ההיסטוריים אינם תמימי דעים לגבי כל פרט בתקופה זו: חלקם מציינים שגיסה דיוגו מת ב־1542 ואחרים מציינים 1543.',
-    researchers: 'מחקר תלמידות אולפנית טבריה: אפרת',
+    researchers: 'מחקר תלמידות אולפנית אורט טבריה: אפרת',
   },
 
   ferrara: {
@@ -105,7 +105,7 @@ export const stationDetails: Record<string, StationDetail> = {
     ],
     didYouKnow:
       'שמואל אושקי כינה את דונה גרציה בהקדשת ספרו "הלב שבתוך הגוף" של קהילת האנוסים הפורטוגלים.',
-    researchers: 'מחקר תלמידות אולפנית טבריה: אביגיל ונויה',
+    researchers: 'מחקר תלמידות אולפנית אורט טבריה: אביגיל ונויה',
   },
 
   istanbul: {
@@ -128,7 +128,7 @@ export const stationDetails: Record<string, StationDetail> = {
     ],
     didYouKnow:
       'בני דורה כינו אותה פשוט "לה סניורה" — הגבירה — ובית הכנסת שהקימה נשא שם זה במשך דורות.',
-    researchers: 'מחקר תלמידות אולפנית טבריה: עדן ויובל',
+    researchers: 'מחקר תלמידות אולפנית אורט טבריה: עדן ויובל',
   },
 
   tiberias: {
@@ -151,6 +151,6 @@ export const stationDetails: Record<string, StationDetail> = {
     ],
     didYouKnow:
       'מיזם טבריה נחשב בעיני היסטוריונים לצעד נועז שהקדים את זמנו, ומבשר ניסיונות מאוחרים יותר להתיישבות יהודית בארץ ישראל.',
-    researchers: 'מחקר תלמידות אולפנית טבריה: עדי',
+    researchers: 'מחקר תלמידות אולפנית אורט טבריה: עדי',
   },
 };

@@ -26,7 +26,7 @@ h1,h2,h3,h4,h5,p{margin:0}
 .replay-btn{grid-row:1/3;grid-column:2;justify-self:end;border:1px solid #ffffff2e;background:#ffffff10;color:#fff;border-radius:30px;font-size:12px;padding:7px 12px;font-weight:700;white-space:nowrap;display:inline-flex;gap:6px;align-items:center;font-family:inherit;transition:background .15s,transform .15s}
 .replay-btn:hover{background:#ffffff1c;transform:translateY(-1px)}
 /* footer */
-.g-footer{background:var(--ink);color:#b0bbcf;display:flex;gap:14px 22px;flex-wrap:wrap;justify-content:space-between;align-items:center;padding:14px 32px;font-size:11px;line-height:1.6}
+.g-footer{background:var(--ink);color:#b0bbcf;display:flex;gap:10px 22px;flex-wrap:wrap;justify-content:space-between;align-items:center;padding:12px 32px;font-size:11px;line-height:1.45}
 .g-footer b{color:var(--lime);font-weight:400}
 .g-footer a{text-decoration:underline;text-underline-offset:3px}
 .linkish{background:none;border:0;padding:0;text-decoration:underline;text-underline-offset:3px;color:inherit;font-size:inherit}
@@ -451,9 +451,17 @@ h1,h2,h3,h4,h5,p{margin:0}
  .cert-text{font-size:15px}
  .cert-text br{display:none}
  .cert-badges{grid-template-columns:repeat(3,1fr)}
- .cert-foot{font-size:10.5px;gap:8px}
+ .cert-foot{font-size:10.5px;gap:8px;flex-wrap:wrap;justify-content:center}
+ .cert-credit{flex:1 1 100%;max-width:none;justify-content:center;text-align:center;margin-top:2px}
+ .cert-credit .school-credit-text{text-align:center}
+ .cert-credit .school-logo{height:32px;max-width:84px}
  .seal{width:58px;height:58px;font-size:12px}
- .g-footer{padding:14px 16px;font-size:11px}
+ .g-footer{padding:10px 14px;font-size:11px;gap:8px 12px}
+ .footer-credit{flex:1 1 100%}
+ .footer-tagline{flex:1 1 auto}
+ .school-logo{height:28px;max-width:74px}
+ .sources-credit{flex-wrap:wrap;gap:10px}
+ .sources-credit .school-logo{height:40px;max-width:104px}
  .card-light{padding:20px}
  .how span{font-size:11px}
 }
@@ -495,10 +503,23 @@ h1,h2,h3,h4,h5,p{margin:0}
 .chat-header-btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px #d7ff5348}
 
 /* footer */
-.footer-partner{color:var(--lime);font-weight:700}
-.footer-tagline{color:#9aa7bd}
-.footer-sources{color:#fff;font-weight:700;cursor:pointer}
+.school-credit{display:flex;align-items:center;gap:10px;min-width:0}
+.school-credit-text{display:flex;flex-direction:column;gap:2px;min-width:0}
+.school-logo{height:30px;width:auto;max-width:80px;object-fit:contain;background:#fff;border-radius:6px;padding:3px 5px;box-shadow:0 0 0 1px #ffffff22;flex:none;display:block}
+.footer-credit{flex:1 1 240px}
+.footer-partner{color:var(--lime);font-weight:700;line-height:1.35}
+.footer-tagline{color:#9aa7bd;flex:1 1 180px}
+.footer-sources{color:#fff;font-weight:700;cursor:pointer;flex:none}
 .footer-sources:hover{color:var(--lime)}
+.school-research{font-size:11px;color:#5a6676;font-weight:600;line-height:1.35}
+.sources-credit{margin-top:20px;padding-top:16px;border-top:1px solid #0b142318;align-items:center}
+.sources-credit .school-logo{height:48px;max-width:120px;padding:4px 7px;box-shadow:0 0 0 1px #0b142318}
+.sources-credit .footer-partner{color:var(--ink);font-size:14px}
+.sources-credit .school-research{font-size:13px}
+.cert-credit{max-width:46%;text-align:right;gap:8px}
+.cert-credit .school-logo{height:36px;max-width:92px;padding:3px 6px;box-shadow:0 0 0 1px #0b142318}
+.cert-credit .footer-partner{color:var(--ink);font-size:11.5px;font-weight:700}
+.cert-credit .school-research{font-size:10.5px}
 
 /* station free switcher */
 .st-switcher{display:flex;gap:6px;flex-wrap:wrap;margin:0 0 14px;padding-bottom:14px;border-bottom:1px solid #ffffff12}
@@ -597,4 +618,10 @@ h1,h2,h3,h4,h5,p{margin:0}
 }
 @media print{
   .chat-fab,.chat-header-btn,.st-switcher,.dc-backdrop{display:none!important}
+}
+
+@media(max-width:700px){
+ .cert-foot{flex-wrap:wrap;justify-content:center;align-items:center;gap:8px 12px}
+ .cert-credit{flex:1 1 100%;max-width:none;justify-content:center;text-align:center;margin-top:6px}
+ .cert-credit .school-credit-text{text-align:center}
 }

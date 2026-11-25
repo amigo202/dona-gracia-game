@@ -247,10 +247,42 @@ function Header({ go, onReplay, onChat }: { go: (r: string) => void; onReplay: (
   );
 }
 
+const SCHOOL_LOGO_WEBP = './ort-tiberias-logo.webp';
+const SCHOOL_LOGO_PNG = './ort-tiberias-logo.png';
+const PARTNER_CREDIT = 'פרויקט משותף עם אולפנית אורט טבריה';
+const RESEARCH_CREDIT = 'המחקר: תלמידות אולפנית אורט טבריה';
+
+function SchoolLogo() {
+  return (
+    <picture>
+      <source type="image/webp" srcSet={SCHOOL_LOGO_WEBP} />
+      <img
+        className="school-logo"
+        src={SCHOOL_LOGO_PNG}
+        alt="סמל אולפנית אורט טבריה"
+        width={362}
+        height={160}
+      />
+    </picture>
+  );
+}
+
+function SchoolCredit({ research = false, className = '' }: { research?: boolean; className?: string }) {
+  return (
+    <div className={'school-credit' + (className ? ' ' + className : '')}>
+      <SchoolLogo />
+      <div className="school-credit-text">
+        <b className="footer-partner">{PARTNER_CREDIT}</b>
+        {research && <span className="school-research">{RESEARCH_CREDIT}</span>}
+      </div>
+    </div>
+  );
+}
+
 function Footer({ go }: { go: (r: string) => void }) {
   return (
     <footer className="g-footer">
-      <b className="footer-partner">פרויקט משותף עם אולפנית טבריה</b>
+      <SchoolCredit className="footer-credit" />
       <span className="footer-tagline">מסע בעקבות דונה גרציה · זהות · מנהיגות · חזון</span>
       <button type="button" className="linkish footer-sources" onClick={() => go('sources')}>מקורות</button>
     </footer>
@@ -552,7 +584,7 @@ function Certificate({ go }: { go: (r: string) => void }) {
               return <li key={k}><span className="cb-ico">{m.badge.icon}</span><b>{m.badge.name}</b><small>{'★'.repeat(stars(p.score))}</small></li>;
             })}
           </ul>
-          <div className="cert-foot"><span>זהות · מנהיגות · חזון</span><span className="seal" aria-hidden="true">✦<br />6/6</span><span>פרויקט משותף עם אולפנית טבריה</span></div>
+          <div className="cert-foot"><span>זהות · מנהיגות · חזון</span><span className="seal" aria-hidden="true">✦<br />6/6</span><SchoolCredit research className="cert-credit" /></div>
         </div>
       </article>
       <div className="no-print cert-again">
@@ -591,7 +623,8 @@ function Sources({ go }: { go: (r: string) => void }) {
             <li key={img.url}><Ext href={img.url}>{img.label}</Ext></li>
           ))}
         </ul>
-        <p className="small">התמונות והסרטונים ממחישים את אווירת הערים והתקופה. פרויקט משותף עם אולפנית טבריה.</p>
+        <p className="small">התמונות והסרטונים ממחישים את אווירת הערים והתקופה.</p>
+        <SchoolCredit research className="sources-credit" />
       </div>
     </div>
   );
