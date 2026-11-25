@@ -147,6 +147,164 @@ async function callGemini(apiKey, model, payload, timeoutMs = 8000) {
   }
 }
 
+const TTS_MODEL = 'gemini-3.8-flash-tts';
+const TTS_VOICE = 'Sulafat';
+const TTS_STYLE = 'speak warmly and calmly, like a dignified 16th-century woman telling her story';
+const TTS_MAX_TEXT = 800;
+const TTS_TIMEOUT_MS = 25000;
+const TTS_CACHE_TTL = 60 * 60 * 24 * 7;
+const TTS_RATE_MIN_LIMIT = 8;
+const TTS_RATE_HOUR_LIMIT = 30;
+
+const ttsBuckets = new Map();
+
+function checkTtsRateLimit(ip) {
+  const now = Date.now();
+  let entry = ttsBuckets.get(ip);
+  if (!entry) {
+    entry = { minCount: 0, minReset: now + 60_000, hourCount: 0, hourReset: now + 3_600_000 };
+    ttsBuckets.set(ip, entry);
+  }
+  if (now > entry.minReset) {
+    entry.minCount = 0;
+    entry.minReset = now + 60_000;
+  }
+  if (now > entry.hourReset) {
+    entry.hourCount = 0;
+    entry.hourReset = now + 3_600_000;
+  }
+  if (entry.minCount >= TTS_RATE_MIN_LIMIT || entry.hourCount >= TTS_RATE_HOUR_LIMIT) {
+    return false;
+  }
+  entry.minCount++;
+  entry.hourCount++;
+  return true;
+}
+
+function normalizeTtsText(text) {
+  return String(text || '').replace(/\s+/g, ' ').trim();
+}
+
+async function ttsCacheRequest(text) {
+  const raw = new TextEncoder().encode(`v1|${TTS_MODEL}|${TTS_VOICE}|he-IL|${text}`);
+  const digest = await crypto.subtle.digest('SHA-256', raw);
+  const hex = [...new Uint8Array(digest)].map(b => b.toString(16).padStart(2, '0')).join('');
+  return new Request(`https://dona-gracia-chat.amigosy.workers.dev/tts/cache/${hex}`, { method: 'GET' });
+}
+
+function ttsAudioResponse(body, { cached }) {
+  return new Response(body, {
+    status: 200,
+    headers: {
+      'Content-Type': 'audio/wav',
+      'Cache-Control': `public, max-age=${TTS_CACHE_TTL}`,
+      'X-TTS-Cache': cached ? 'hit' : 'miss',
+      'X-TTS-Voice': TTS_VOICE,
+      'Access-Control-Expose-Headers': 'X-TTS-Cache, X-TTS-Voice',
+      ...corsHeaders(),
+    },
+  });
+}
+
+function extractWav(data) {
+  const parts = data?.candidates?.[0]?.content?.parts || [];
+  for (const part of parts) {
+    const inline = part.inlineData || part.inline_data;
+    if (inline && inline.data) return inline;
+  }
+  return null;
+}
+
+async function synthesizeSulafat(apiKey, text) {
+  const payload = {
+    contents: [{
+      role: 'user',
+      parts: [{
+        text,
+        speechMetadata: { style: TTS_STYLE },
+      }],
+    }],
+    generationConfig: {
+      responseModalities: ['AUDIO'],
+      speechConfig: {
+        languageCode: 'he-IL',
+        voiceConfig: { voice: TTS_VOICE },
+      },
+    },
+  };
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TTS_TIMEOUT_MS);
+  try {
+    const resp = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/${TTS_MODEL}:generateContent?key=${encodeURIComponent(apiKey)}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        signal: controller.signal,
+      },
+    );
+    if (resp.status === 429) return { ok: false, status: 429 };
+    if (!resp.ok) return { ok: false, status: resp.status >= 500 ? 502 : resp.status };
+    const data = await resp.json();
+    const inline = extractWav(data);
+    if (!inline?.data) return { ok: false, status: 502 };
+    const binary = Uint8Array.from(atob(inline.data), c => c.charCodeAt(0));
+    if (binary.byteLength < 44) return { ok: false, status: 502 };
+    return { ok: true, bytes: binary };
+  } catch {
+    return { ok: false, status: 504 };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function handleTts(request, env) {
+  if (request.method !== 'POST') {
+    return jsonResponse({ error: 'Method not allowed' }, 405);
+  }
+  const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+  if (!checkTtsRateLimit(ip)) {
+    return jsonResponse({ error: 'TTS quota exceeded' }, 429);
+  }
+  if (!env.GEMINI_API_KEY) {
+    return jsonResponse({ error: 'TTS unavailable' }, 503);
+  }
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return jsonResponse({ error: 'Invalid JSON' }, 400);
+  }
+  const text = normalizeTtsText(body && body.text);
+  if (!text) return jsonResponse({ error: 'Missing text' }, 400);
+  if (text.length > TTS_MAX_TEXT) return jsonResponse({ error: 'Text too long' }, 413);
+
+  const cache = caches.default;
+  const cacheReq = await ttsCacheRequest(text);
+  const hit = await cache.match(cacheReq);
+  if (hit) {
+    return ttsAudioResponse(hit.body, { cached: true });
+  }
+
+  const result = await synthesizeSulafat(env.GEMINI_API_KEY, text);
+  if (!result.ok) {
+    const status = result.status === 429 ? 429 : result.status || 502;
+    const error = status === 429 ? 'TTS quota exceeded' : 'Upstream unavailable';
+    return jsonResponse({ error }, status);
+  }
+
+  const audioBody = result.bytes;
+  const cached = ttsAudioResponse(audioBody, { cached: false });
+  try {
+    await cache.put(cacheReq, cached.clone());
+  } catch {
+    /* cache write is best-effort */
+  }
+  return cached;
+}
+
 export default {
   async fetch(request, env) {
     const origin = request.headers.get('Origin');
@@ -156,6 +314,11 @@ export default {
 
     if (request.method === 'OPTIONS') {
       return new Response(null, { status: 204, headers: corsHeaders() });
+    }
+
+    const url = new URL(request.url);
+    if (url.pathname === '/tts') {
+      return handleTts(request, env);
     }
 
     if (request.method !== 'POST') {

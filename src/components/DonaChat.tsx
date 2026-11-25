@@ -5,7 +5,7 @@ import {
   initialGreeting,
   suggestedQuestions,
 } from '../game/donaChat';
-import { useSpeech } from '../game/store';
+import { useReplySpeech } from '../game/chatSpeech';
 
 type SpeechRecInstance = {
   lang: string;
@@ -51,7 +51,7 @@ export function DonaChat({
   const inputRef = useRef<HTMLInputElement>(null);
   const recRef = useRef<SpeechRecInstance | null>(null);
   const speechSupported = !!getSpeechRecCtor();
-  const tts = useSpeech();
+  const tts = useReplySpeech();
 
   useEffect(() => {
     if (!tts.playing) setSpeakingId(null);
@@ -60,7 +60,9 @@ export function DonaChat({
   useEffect(() => {
     if (!open) {
       recRef.current?.stop();
+      tts.stop();
       setListening(false);
+      setSpeakingId(null);
       return;
     }
     const timer = window.setTimeout(() => inputRef.current?.focus(), 160);
@@ -223,11 +225,18 @@ export function DonaChat({
                 {m.role === 'dona' && tts.supported && (
                   <button
                     type="button"
-                    className={'dc-speak' + (speakingId === m.id && tts.playing ? ' on' : '')}
+                    className={'dc-speak' + (speakingId === m.id && (tts.playing || tts.loading) ? ' on' : '')}
                     onClick={() => speakReply(m)}
-                    aria-label={speakingId === m.id && tts.playing ? 'עצירת הקראה' : 'האזנה לתשובה'}
+                    disabled={tts.loading && speakingId !== m.id}
+                    aria-label={
+                      speakingId === m.id && tts.loading
+                        ? 'מכינה הקראה'
+                        : speakingId === m.id && tts.playing
+                          ? 'עצירת הקראה'
+                          : 'האזנה לתשובה'
+                    }
                   >
-                    {speakingId === m.id && tts.playing ? '❚❚ עצירה' : '🔊 הקראה'}
+                    {speakingId === m.id && tts.loading ? '… מכינה הקראה' : speakingId === m.id && tts.playing ? '❚❚ עצירה' : '🔊 הקראה'}
                   </button>
                 )}
               </div>
@@ -257,9 +266,9 @@ export function DonaChat({
           ))}
         </div>
 
-        {voiceNote && (
+        {(voiceNote || tts.note) && (
           <p className="dc-note" role="status">
-            {voiceNote}
+            {voiceNote || tts.note}
           </p>
         )}
 
