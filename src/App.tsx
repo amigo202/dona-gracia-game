@@ -93,16 +93,87 @@ function AvatarPlayer({ slug, city }: { slug: string; city: string }) {
   );
 }
 
-function Narrator({ text }: { text: string }) {
-  const sp = useSpeech();
+function Narrator({ slug, text }: { slug: string; text: string }) {
+  const tts = useSpeech();
+  const audioRef = React.useRef<HTMLAudioElement | null>(null);
+  const [source, setSource] = useState<'checking' | 'mp3' | 'tts'>('checking');
+  const [playing, setPlaying] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const src = `./audio/narration/${slug}.mp3`;
+
+  useEffect(() => {
+    window.speechSynthesis?.cancel?.();
+    setPlaying(false);
+    setProgress(0);
+    setSource('checking');
+    const a = new Audio();
+    a.preload = 'metadata';
+    const onMeta = () => setSource('mp3');
+    const onErr = () => setSource('tts');
+    const onTime = () => {
+      if (a.duration && Number.isFinite(a.duration) && a.duration > 0) {
+        setProgress(Math.min(100, Math.round((a.currentTime / a.duration) * 100)));
+      }
+    };
+    const onEnded = () => { setPlaying(false); setProgress(100); };
+    const onPlay = () => setPlaying(true);
+    const onPause = () => { if (!a.ended) setPlaying(false); };
+    a.addEventListener('loadedmetadata', onMeta);
+    a.addEventListener('error', onErr);
+    a.addEventListener('timeupdate', onTime);
+    a.addEventListener('ended', onEnded);
+    a.addEventListener('play', onPlay);
+    a.addEventListener('pause', onPause);
+    a.src = src;
+    audioRef.current = a;
+    return () => {
+      a.pause();
+      a.removeEventListener('loadedmetadata', onMeta);
+      a.removeEventListener('error', onErr);
+      a.removeEventListener('timeupdate', onTime);
+      a.removeEventListener('ended', onEnded);
+      a.removeEventListener('play', onPlay);
+      a.removeEventListener('pause', onPause);
+      a.removeAttribute('src');
+      a.load();
+      audioRef.current = null;
+      window.speechSynthesis?.cancel?.();
+    };
+  }, [slug, src]);
+
+  const toggle = () => {
+    if (source !== 'mp3') {
+      tts.speak(text);
+      return;
+    }
+    const a = audioRef.current;
+    if (!a) {
+      tts.speak(text);
+      return;
+    }
+    window.speechSynthesis?.cancel?.();
+    if (!a.paused && !a.ended) {
+      a.pause();
+      return;
+    }
+    void a.play().catch(() => {
+      setSource('tts');
+      tts.speak(text);
+    });
+  };
+
+  const isPlaying = source === 'mp3' ? playing : tts.playing;
+  const bar = source === 'mp3' ? progress : tts.progress;
+  const warn = source === 'mp3' ? '' : tts.note;
+
   return (
     <div className="listen-wrap">
-      <button type="button" className={'listen' + (sp.playing ? ' on' : '')} onClick={() => sp.speak(text)} aria-pressed={sp.playing}>
-        <span className="ico" aria-hidden="true">{sp.playing ? '❚❚' : '▶'}</span>
-        <span>{sp.playing ? 'מקריאה… (לחצו לעצירה)' : 'הקשיבו לסיפור התחנה'}</span>
-        <span className="bar" aria-hidden="true"><i style={{ width: sp.progress + '%' }} /></span>
+      <button type="button" className={'listen' + (isPlaying ? ' on' : '')} onClick={toggle} aria-pressed={isPlaying}>
+        <span className="ico" aria-hidden="true">{isPlaying ? '❚❚' : '▶'}</span>
+        <span>{isPlaying ? 'מקריאה… (לחצו להשהיה)' : 'הקשיבו לסיפור התחנה'}</span>
+        <span className="bar" aria-hidden="true"><i style={{ width: bar + '%' }} /></span>
       </button>
-      {sp.note && <p className="voice-note warn" role="status">{sp.note}</p>}
+      {warn && <p className="voice-note warn" role="status">{warn}</p>}
     </div>
   );
 }
@@ -305,7 +376,6 @@ function StationView({ idx, go, onChat }: { idx: number; go: (r: string) => void
     if (first) sessionStorage.setItem('dg-anim', String(idx + 1));
     setStep(3);
   };
-  const story = `${s.city}. ${strip(s.heading)}. ${strip(s.story)} מושג לדרך: ${strip(s.concept)}. ${strip(s.definition)}`;
   const stepNames = ['הסיפור', 'הדילמה', m.gameLabel, 'התג'];
   const historical = m.dilemma.choices.findIndex(c => c.historical);
 
@@ -351,7 +421,7 @@ function StationView({ idx, go, onChat }: { idx: number; go: (r: string) => void
                 <AvatarPlayer slug={slug} city={s.city} />
                 <Html tag="h2" html={s.heading} />
                 <Html tag="p" className="story" html={s.story} />
-                <Narrator text={story} />
+                <Narrator slug={slug} text={strip(s.story)} />
                 <StationWhatHappened slug={slug} city={s.city} />
                 <div className="concept"><b>מושג לדרך</b><Html tag="strong" html={s.concept} /><Html tag="p" html={s.definition} /></div>
                 {idx === 5 && <div className="vision-note"><b>תחנת חזון.</b> דונה גרציה פעלה למען טבריה, אך לא חיה בה ולא הגיעה אליה.</div>}
