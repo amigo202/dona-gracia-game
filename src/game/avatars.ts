@@ -35,6 +35,11 @@ export const avatarVideos: Record<string, AvatarVideo | undefined> = {
     poster: './avatars/tiberias.jpg',
     caption: 'דונה גרציה מספרת על החזון בטבריה',
   },
+  venice: {
+    src: './avatars/venice.mp4',
+    poster: './avatars/venice.jpg',
+    caption: 'דונה גרציה מספרת על הסכסוך והמעצר בוונציה',
+  },
 };
 
 export function getAvatarVideo(slug: string): AvatarVideo | null {
